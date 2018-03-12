@@ -1,17 +1,13 @@
-# vueAdmin-template
+# TDL Privilege System
 
-> A minimal vue admin template with Element UI & axios & iconfont & permission control & lint
-
-**Live demo:** http://panjiachen.github.io/vueAdmin-template
-
-[中文文档](https://github.com/PanJiaChen/vueAdmin-template/blob/master/README-zh.md)
+> a privile system Web , design by vue,vuex,router,store,es5
 
 ## Build Setup
 
 ``` bash
 
 # Clone project
-git clone https://github.com/PanJiaChen/vueAdmin-template.git
+git clone https://github.com/TwoDragonLake/tdl-web-vue.git
 
 # Install dependencies
 npm install
@@ -27,18 +23,18 @@ npm run build --report
 ```
 
 ## Demo
-![demo](https://github.com/PanJiaChen/PanJiaChen.github.io/blob/master/images/demo.gif)
+
 
 ## Extra
-If you want router permission && generate menu by user roles , you can use this branch [permission-control](https://github.com/PanJiaChen/vueAdmin-template/tree/permission-control)
 
 ## Related Project
- [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+ [vueAdmin-template](http://panjiachen.github.io/vueAdmin-template)
 
- [electron-vue-admin](https://github.com/PanJiaChen/electron-vue-admin)
+For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/)
+and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
 
 ## License
-[MIT](https://github.com/PanJiaChen/vueAdmin-template/blob/master/LICENSE) license.
+[MIT](https://github.com/TwoDragonLake/tdl-privilege#license) license.
 
-Copyright (c) 2017-present PanJiaChen
+Copyright (c) 2017-present twodragonlake
