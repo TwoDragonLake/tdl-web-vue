@@ -9,6 +9,7 @@
 
 <script>
 export default {
+  name: 'Tree',
   watch: {
     filterText(val) {
       this.$refs.tree2.filter(val)

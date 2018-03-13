@@ -1,5 +1,12 @@
 <template>
   <div class="app-container">
+    <div>
+      <el-button type="primary" icon="el-icon-edit"></el-button>
+      <el-button type="primary" icon="el-icon-share"></el-button>
+      <el-button type="primary" icon="el-icon-delete"></el-button>
+      <el-button type="primary" icon="el-icon-search">搜索</el-button>
+      <el-button type="primary">上传<i class="el-icon-upload el-icon--right"></i></el-button>
+    </div>
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" label='ID' width="95">
         <template slot-scope="scope">
@@ -38,8 +45,8 @@
 
 <script>
 import { getList } from '@/api/table'
-
 export default {
+  name: 'GTable',
   data() {
     return {
       list: null,
