@@ -48,63 +48,63 @@ export const constantRouterMap = [
       {
         path: 'systemManager',
         name: 'systemManager',
-        component: () => import('@/views/treetable/treetable'),
+        component: () => import('@/views/systemmanager/systemManager'),
         meta: { title: 'systemManager', icon: 'table' }
       },
       // Module Manager 模块管理
       {
         path: 'moduleManager',
         name: 'moduleManager',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/modulemanager/moduleManager'),
         meta: { title: 'moduleManager', icon: 'table' }
       },
       // DepartManager - 部门管理
       {
         path: 'departManager',
         name: 'departManager',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/departmentManager/departmentManager'),
         meta: { title: 'departManager', icon: 'table' }
       },
       // userManager-用户管理
       {
         path: 'userManager',
         name: 'userManager',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/usermanager/userManager'),
         meta: { title: 'userManager', icon: 'table' }
       },
       // roleManager-角色管理
       {
         path: 'roleManager',
         name: 'roleManager',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/rolemanager/roleManager'),
         meta: { title: 'roleManager', icon: 'table' }
       },
       // dataDict - 数据字典
       {
         path: 'dataDict',
         name: 'dataDict',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/datadict/dataDict'),
         meta: { title: 'dataDict', icon: 'table' }
       },
       // systemPrivValue - 系统权限值
       {
         path: 'systemPrivValue',
         name: 'systemPrivValue',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/systemprivalue/systemPriValue'),
         meta: { title: 'systemPrivValue', icon: 'table' }
       },
       // systemConfig 系统配置
       {
         path: 'systemConfig',
         name: 'systemConfig',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/systemconfig/systemConfig'),
         meta: { title: 'systemConfig', icon: 'table' }
       },
       // signInLog - 登录日志
       {
         path: 'signInLog',
         name: 'signInLog',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/signinlog/signInLog'),
         meta: { title: 'signInLog', icon: 'table' }
       },
       //

@@ -45,7 +45,7 @@
 <script>
 import { getList } from '@/api/table'
 export default {
-  name: 'GTable',
+  name: 'SignInLog',
   data() {
     return {
       list: null,

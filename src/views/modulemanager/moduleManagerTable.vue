@@ -4,7 +4,7 @@
       <el-button type="primary" icon="el-icon-plus"></el-button>
       <el-button type="primary" icon="el-icon-edit"></el-button>
       <el-button type="primary" icon="el-icon-delete"></el-button>
-      <el-button type="primary" icon="el-icon-refresh"></el-button>
+      <el-button type="primary" icon="el-icon-setting">添加操作权限</el-button>
     </div>
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" label='ID' width="95">
@@ -45,7 +45,7 @@
 <script>
 import { getList } from '@/api/table'
 export default {
-  name: 'GTable',
+  name: 'ModuleManagerTable',
   data() {
     return {
       list: null,

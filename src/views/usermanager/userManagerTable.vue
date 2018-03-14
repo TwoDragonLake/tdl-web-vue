@@ -4,7 +4,10 @@
       <el-button type="primary" icon="el-icon-plus"></el-button>
       <el-button type="primary" icon="el-icon-edit"></el-button>
       <el-button type="primary" icon="el-icon-delete"></el-button>
-      <el-button type="primary" icon="el-icon-refresh"></el-button>
+      <el-button type="primary" icon="el-icon-info">查看详情</el-button>
+      <el-button type="primary" icon="el-icon-setting">分配角色</el-button>
+      <el-button type="primary" icon="el-icon-setting">操作授权</el-button>
+      <el-button type="primary" icon="el-icon-view">修改密码</el-button>
     </div>
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" label='ID' width="95">
@@ -45,7 +48,7 @@
 <script>
 import { getList } from '@/api/table'
 export default {
-  name: 'GTable',
+  name: 'UserManagerTable',
   data() {
     return {
       list: null,

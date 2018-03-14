@@ -4,6 +4,10 @@
       <el-button type="primary" icon="el-icon-plus"></el-button>
       <el-button type="primary" icon="el-icon-edit"></el-button>
       <el-button type="primary" icon="el-icon-delete"></el-button>
+    </div>
+    <div class="inline">
+      系统名称:<el-input v-model="input"   placeholder="请输入内容"></el-input>
+      系统标示:<el-input v-model="input"  placeholder="请输入内容"></el-input>
       <el-button type="primary" icon="el-icon-refresh"></el-button>
     </div>
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
@@ -45,7 +49,7 @@
 <script>
 import { getList } from '@/api/table'
 export default {
-  name: 'GTable',
+  name: 'SystemManager',
   data() {
     return {
       list: null,
@@ -76,3 +80,9 @@ export default {
   }
 }
 </script>
+
+<style rel="stylesheet/scss" lang="scss" scoped>
+  .inline{
+    float:left;
+  }
+</style>
