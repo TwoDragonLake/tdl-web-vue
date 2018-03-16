@@ -6,6 +6,16 @@
       <el-button type="primary" icon="el-icon-delete"></el-button>
       <el-button type="primary" icon="el-icon-setting">操作授权</el-button>
     </div>
+    <hr>
+    <div >
+      <el-row :gutter="20">
+        <el-col :span="2" class="mycenter"  >角色名称:</el-col>
+        <el-col :span="6"><el-input v-model="input"   placeholder="请输入内容"></el-input></el-col>
+        <el-col :span="2" class="mycenter" >角色标示:</el-col>
+        <el-col :span="6"><el-input v-model="input"  placeholder="请输入内容"></el-input></el-col>
+        <el-col :span="4"> <el-button type="primary" icon="el-icon-search"></el-button></el-col>
+      </el-row>
+    </div>
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" label='ID' width="95">
         <template slot-scope="scope">
@@ -76,3 +86,10 @@ export default {
   }
 }
 </script>
+
+<style rel="stylesheet/scss" lang="scss" scoped>
+  .mycenter{
+    margin-top: 1%;
+    margin-left: 5%;
+  }
+</style>

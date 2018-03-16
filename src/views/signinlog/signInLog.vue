@@ -6,6 +6,14 @@
       <el-button type="primary" icon="el-icon-delete"></el-button>
       <el-button type="primary" icon="el-icon-refresh"></el-button>
     </div>
+    <hr>
+    <div >
+      <el-row :gutter="20">
+        <el-col :span="2" class="mycenter"  >登录日志:</el-col>
+        <el-col :span="14"><el-input v-model="input"   placeholder="请输入内容"></el-input></el-col>
+        <el-col :span="4"> <el-button type="primary" icon="el-icon-search"></el-button></el-col>
+      </el-row>
+    </div>
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" label='ID' width="95">
         <template slot-scope="scope">
@@ -76,3 +84,9 @@ export default {
   }
 }
 </script>
+<style rel="stylesheet/scss" lang="scss" scoped>
+  .mycenter{
+    margin-left: 5%;
+    margin-top: 1%;
+  }
+</style>

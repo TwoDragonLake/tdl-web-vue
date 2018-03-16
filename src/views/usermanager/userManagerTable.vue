@@ -9,6 +9,20 @@
       <el-button type="primary" icon="el-icon-setting">操作授权</el-button>
       <el-button type="primary" icon="el-icon-view">修改密码</el-button>
     </div>
+    <hr>
+    <div >
+      <el-row :gutter="20">
+        <el-col :span="2" class="mycenter"  >用户名:</el-col>
+        <el-col :span="4"><el-input v-model="input"   placeholder="请输入内容"></el-input></el-col>
+        <el-col :span="1" class="mycenter" >姓名:</el-col>
+        <el-col :span="3"><el-input v-model="input"  placeholder="请输入内容"></el-input></el-col>
+        <el-col :span="1" class="mycenter" >手机:</el-col>
+        <el-col :span="4"><el-input v-model="input"  placeholder="请输入内容"></el-input></el-col>
+        <el-col :span="1" class="mycenter" >邮箱:</el-col>
+        <el-col :span="4"><el-input v-model="input"  placeholder="请输入内容"></el-input></el-col>
+        <el-col :span="1"> <el-button type="primary" icon="el-icon-search"></el-button></el-col>
+      </el-row>
+    </div>
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" label='ID' width="95">
         <template slot-scope="scope">
@@ -79,3 +93,9 @@ export default {
   }
 }
 </script>
+
+<style rel="stylesheet/scss" lang="scss" scoped>
+  .mycenter{
+    margin-top: 1.5%;
+  }
+</style>

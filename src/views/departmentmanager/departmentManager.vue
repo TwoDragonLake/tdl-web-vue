@@ -6,8 +6,8 @@
       <el-button type="primary" icon="el-icon-delete"></el-button>
       <el-button type="primary" icon="el-icon-d-caret">合并</el-button>
       <el-button type="primary" icon="el-icon-d-caret">展开</el-button>
-
     </div>
+    <hr>
     <el-input placeholder="Filter keyword" v-model="filterText" style="margin-bottom:30px;"></el-input>
 
     <el-tree class="filter-tree" :data="data2" :props="defaultProps" default-expand-all :filter-node-method="filterNode" ref="tree2"></el-tree>
