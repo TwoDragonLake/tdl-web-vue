@@ -107,6 +107,13 @@ export const constantRouterMap = [
         component: () => import('@/views/signinlog/signInLog'),
         meta: { title: 'signInLog', icon: 'table' }
       },
+
+      {
+        path: 'treeTable',
+        name: 'treeTable',
+        component: () => import('@/views/treeTable/customTreeTable'),
+        meta: { title: 'treeTable', icon: 'table' }
+      },
       //
       {
         path: 'tree',
