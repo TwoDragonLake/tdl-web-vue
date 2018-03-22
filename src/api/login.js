@@ -1,21 +1,23 @@
 import request from '@/utils/request'
 
-export function login(username, password) {
+export function login(username, password, selectFlag) {
   return request({
-    url: '/user/login',
+    url: '/login.do',
     method: 'post',
     data: {
-      username,
-      password
+      username: username,
+      password: password,
+      selectFlag: selectFlag
     }
   })
 }
 
 export function getInfo(token) {
   return request({
-    url: '/user/info',
-    method: 'get',
-    params: { token }
+    url: '/managment/frame/getInfo.do',
+    method: 'post',
+    data: {
+    }
   })
 }
 
