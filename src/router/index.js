@@ -36,7 +36,7 @@ export const constantRouterMap = [
       component: () => import('@/views/dashboard/index')
     }]
   },
-
+  /**
   {
     path: '/privileManager',
     component: Layout,
@@ -107,12 +107,12 @@ export const constantRouterMap = [
         component: () => import('@/views/signinlog/signInLog'),
         meta: { title: 'signInLog', icon: 'table' }
       },
-
+       //
       {
-        path: 'treeTable',
-        name: 'treeTable',
-        component: () => import('@/views/treeTable/customTreeTable'),
-        meta: { title: 'treeTable', icon: 'table' }
+        path: 'customTreeTable',
+        name: 'customTreeTable',
+        component: () => import('@/views/treetable/customTreeTable'),
+        meta: { title: 'customTreeTable', icon: 'table' }
       },
       //
       {
@@ -136,7 +136,7 @@ export const constantRouterMap = [
       }
     ]
   },
-
+   **/
   { path: '*', redirect: '/404', hidden: true }
 ]
 

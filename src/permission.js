@@ -14,6 +14,8 @@ router.beforeEach((to, from, next) => {
     } else {
       if (store.getters.roles.length === 0) {
         store.dispatch('GetInfo').then(res => { // 拉取用户信息
+          // router.addRoutes(store.getters.modules) // 动态添加可访问路由表
+          // next({ ...to, replace: true })
           next()
         }).catch(() => {
           store.dispatch('FedLogOut').then(() => {

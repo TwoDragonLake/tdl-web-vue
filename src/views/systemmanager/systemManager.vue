@@ -65,7 +65,7 @@ export default {
   data() {
     return {
       icSystem: {
-        name: '系统管理',
+        name: null,
         sn: null
       },
       total: null,
@@ -99,12 +99,12 @@ export default {
       this.listLoading = true
       getList(this.icSystem, this.listQuery).then(response => {
         this.list = response.data
-        this.total = response.data.total
+        this.total = response.total
         this.listLoading = false
       })
     },
     handleCurrentChange(val) {
-      this.listQuery.page = val
+      this.listQuery.pageIndex = val
       this.fetchData()
     },
     handleSizeChange(val) {
