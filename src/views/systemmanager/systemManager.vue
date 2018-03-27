@@ -4,6 +4,9 @@
       <el-button type="primary" icon="el-icon-plus"></el-button>
       <el-button type="primary" icon="el-icon-edit"></el-button>
       <el-button type="primary" icon="el-icon-delete"></el-button>
+      <AclBox>
+        ++++++
+      </AclBox>
     </div>
     <hr>
     <div >
@@ -16,27 +19,27 @@
       </el-row>
     </div>
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
-      <el-table-column align="center" label='Name' width="200%">
+      <el-table-column align="center" label='Name' width="200">
         <template slot-scope="scope">
           {{scope.row.name}}
         </template>
       </el-table-column>
-      <el-table-column label="Sn" width="200px">
+      <el-table-column label="Sn" width="200">
         <template slot-scope="scope">
           {{scope.row.sn}}
         </template>
       </el-table-column>
-      <el-table-column label="PreUrl" width="200px" align="center">
+      <el-table-column label="PreUrl" width="300" align="center">
         <template slot-scope="scope">
           <span>{{scope.row.url}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="OrderNO" width="200px" align="center">
+      <el-table-column label="OrderNO" width="100" align="center">
         <template slot-scope="scope">
           {{scope.row.orderNo}}
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="Remark" width="200px" align="center">
+      <el-table-column class-name="status-col" label="Remark" width="500" align="center">
         <template slot-scope="scope">
           {{scope.row.note}}
         </template>
@@ -60,8 +63,12 @@
 
 <script>
 import { getList } from '@/api/systemManager'
+import AclBox from '@/components/PrivilegeAccess/aclBox'
 export default {
   name: 'SystemManager',
+  components: {
+    AclBox
+  },
   data() {
     return {
       icSystem: {
