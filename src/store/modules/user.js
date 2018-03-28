@@ -1,5 +1,5 @@
 import { login, logout, getInfo } from '@/api/login'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken, accessAcl } from '@/utils/auth'
 import router from '@/router/index'
 import Layout from '../../views/layout/Layout'
 const user = {
@@ -47,6 +47,14 @@ const user = {
         }).catch(error => {
           reject(error)
         })
+      })
+    },
+
+    accessAcl({ commit, state }, obj) {
+      return accessAcl(obj.sessionId, obj.systemSn, obj.nameSpace, obj.permission).then(response => {
+        return response
+      }).catch(error => {
+        console.log(error)
       })
     },
 

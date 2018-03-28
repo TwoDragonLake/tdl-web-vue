@@ -1,12 +1,9 @@
 <template>
   <div class="app-container">
     <div>
-      <el-button type="primary" icon="el-icon-plus"></el-button>
-      <el-button type="primary" icon="el-icon-edit"></el-button>
-      <el-button type="primary" icon="el-icon-delete"></el-button>
-      <AclBox>
-        ++++++
-      </AclBox>
+      <el-button type="primary" v-if="add" icon="el-icon-plus"></el-button>
+      <el-button type="primary" v-if="edit" icon="el-icon-edit"></el-button>
+      <el-button type="primary" v-if="del" icon="el-icon-delete"></el-button>
     </div>
     <hr>
     <div >
@@ -63,14 +60,15 @@
 
 <script>
 import { getList } from '@/api/systemManager'
-import AclBox from '@/components/PrivilegeAccess/aclBox'
+import store from '@/store'
+//  import { getToken } from '@/utils/auth'
 export default {
   name: 'SystemManager',
-  components: {
-    AclBox
-  },
   data() {
     return {
+      add: null,
+      del: null,
+      edit: null,
       icSystem: {
         name: null,
         sn: null
@@ -100,8 +98,17 @@ export default {
   },
   created() {
     this.fetchData()
+    this.add = this.accessAcl(null, 'privilege', 'icsystem', 0)
+    this.edit = this.accessAcl(null, 'privilege', 'icsystem', 2)
+    this.del = this.accessAcl(null, 'privilege', 'icsystem', 3)
   },
   methods: {
+    accessAcl(sessionId, systemSn, nameSpace, permission) {
+      return store.dispatch('accessAcl', { sessionId: null, systemSn: systemSn, nameSpace: nameSpace, permission: permission }).then(res => {
+        return (res && res === '0')
+      }).catch(() => {
+      })
+    },
     fetchData() {
       this.listLoading = true
       getList(this.icSystem, this.listQuery).then(response => {

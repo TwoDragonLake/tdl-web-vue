@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie'
+import request from '@/utils/request'
 
 const TokenKey = 'Admin-Token'
 
@@ -12,4 +13,17 @@ export function setToken(token) {
 
 export function removeToken() {
   return Cookies.remove(TokenKey)
+}
+
+export function accessAcl(sessionId, systemSn, moduleSn, permission) {
+  return request({
+    url: '/managment/frame/hasPermission.do',
+    method: 'post',
+    data: {
+      sessionId: sessionId,
+      systemSn: systemSn,
+      moduleSn: moduleSn,
+      permission: permission
+    }
+  })
 }
