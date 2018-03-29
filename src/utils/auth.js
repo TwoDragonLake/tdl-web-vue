@@ -15,12 +15,11 @@ export function removeToken() {
   return Cookies.remove(TokenKey)
 }
 
-export function accessAcl(sessionId, systemSn, moduleSn, permission) {
+export function accessAcl(systemSn, moduleSn, permission) {
   return request({
     url: '/managment/frame/hasPermission.do',
     method: 'post',
     data: {
-      sessionId: sessionId,
       systemSn: systemSn,
       moduleSn: moduleSn,
       permission: permission

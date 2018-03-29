@@ -51,7 +51,7 @@ const user = {
     },
 
     accessAcl({ commit, state }, obj) {
-      return accessAcl(obj.sessionId, obj.systemSn, obj.nameSpace, obj.permission).then(response => {
+      return accessAcl(obj.systemSn, obj.nameSpace, obj.permission).then(response => {
         return response
       }).catch(error => {
         console.log(error)

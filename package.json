@@ -20,8 +20,10 @@
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "vue": "2.5.10",
+    "vue-i18n": "^7.6.0",
     "vue-router": "3.0.1",
-    "vuex": "3.0.1"
+    "vuex": "3.0.1",
+    "vuex-i18n": "7.3.2"
   },
   "devDependencies": {
     "autoprefixer": "7.2.3",
