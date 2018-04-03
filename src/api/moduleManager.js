@@ -30,3 +30,14 @@ export function getmodules(query, module) {
   }
 }
 
+export function insert(module) {
+  return request({
+    url: '/managment/privilege/module/insert.do',
+    method: 'post',
+    data: {
+      module: JSON.stringify(module)
+    }
+  })
+}
+
+

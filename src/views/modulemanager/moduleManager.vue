@@ -72,8 +72,33 @@
                          :page-sizes="[10,20,30, 50]" :page-size="query.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
           </el-pagination>
         </div>
-
       </div>
+
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
+        <el-form-item :label="$t('systemManager.name')" prop="name">
+          <el-input v-model="temp.name"></el-input>
+        </el-form-item>
+
+        <el-form-item :label="$t('systemManager.sn')" prop="sn">
+          <el-input v-model="temp.sn"></el-input>
+        </el-form-item>
+
+        <el-form-item :label="$t('systemManager.url')" prop="url">
+          <el-input v-model="temp.url"></el-input>
+        </el-form-item>
+
+        <el-form-item :label="$t('systemManager.orderNo')" prop="orderNo">
+          <el-input v-model="temp.orderNo"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">Cancle</el-button>
+        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">confirm</el-button>
+        <el-button v-else type="primary" @click="updateData">confirm</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -100,7 +125,26 @@
         },
         data:
           { },
-        args: [null, null]
+        args: [null, null],
+        textMap: {
+          update: 'Edit',
+          create: 'Create'
+        },
+        dialogFormVisible: false,
+        dialogStatus: '',
+        temp: {
+          id: undefined,
+          name: null,
+          sn: '',
+          url: '',
+          orderNo: ''
+        },
+        rules: {
+          name: [{ required: true, message: 'title is required', trigger: 'blur' }],
+          sn: [{ required: true, message: 'title is required', trigger: 'blur' }],
+          url: [{ required: true, message: 'title is required', trigger: 'blur' }],
+          orderNo: [{ required: true, message: 'title is required', trigger: 'blur' }]
+        }
       }
     },
     created() {
@@ -122,11 +166,6 @@
         })
         //  console.log(payload.node)
       },
-      getmodules() {
-        getmodules(this.query, this.model).then((res) => {
-          this.data = res.data
-        })
-      },
       handleCurrentChange(val) {
         this.query.pageIndex = val
         this.$nextTick(() => {
@@ -138,7 +177,23 @@
         this.$nextTick(() => {
           this.getmodules()
         })
-      }
+      },
+      getmodules() {
+        getmodules(this.query, this.model).then((res) => {
+          this.data = res.data
+          this.total = res.total
+        })
+      },
+      update(row) {
+        this.temp = Object.assign({}, row) // copy obj
+        this.dialogStatus = 'update'
+        this.dialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['dataForm'].clearValidate()
+        })
+      },
+      createData() {},
+      updateData() {}
     }
   }
 </script>

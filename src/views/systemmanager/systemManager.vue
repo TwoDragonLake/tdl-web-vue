@@ -44,7 +44,7 @@
           {{scope.row.note}}
         </template>
       </el-table-column>
-      <<el-table-column align="center" prop="created_at" label="Display_time" width="200">
+      <<el-table-column align="center" prop="created_at" label="Display_time" width="100">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" v-if="edit" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
         </template>
