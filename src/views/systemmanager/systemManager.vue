@@ -268,7 +268,6 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
-      console.log(this.multipleSelection)
     },
     handleDelete() {
       if (this.multipleSelection.length === 0) {

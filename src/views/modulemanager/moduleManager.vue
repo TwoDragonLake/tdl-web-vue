@@ -5,13 +5,12 @@
       </div>
       <div class="treetable-right">
         <div>
-          <el-button type="primary" icon="el-icon-plus"></el-button>
-          <el-button type="primary" icon="el-icon-edit"></el-button>
-          <el-button type="primary" icon="el-icon-delete"></el-button>
-          <el-button type="primary" icon="el-icon-setting">添加操作权限</el-button>
+          <el-button type="primary" v-if="add" @click="handleCreate" icon="el-icon-plus"></el-button>
+          <el-button type="primary" v-if="del" @click="handleDelete"  icon="el-icon-delete"></el-button>
+          <el-button type="primary" v-if="edit" @click="getAllPriVal" icon="el-icon-setting">添加操作权限</el-button>
         </div>
         <hr>
-        <tree-table :data="data" :evalFunc="func" :evalArgs="args" :expandAll="expandAll" border>
+        <tree-table :data="data" :evalFunc="func" :evalArgs="args" :expandAll="expandAll"  @selection-change="handleSelectionChange">
 <!--          <el-table-column label="事件">
             <template slot-scope="scope">
               <span style="color:sandybrown">{{scope.row.event}}</span>
@@ -46,8 +45,12 @@
             </template>
           </el-table-column>
           <el-table-column label="State" width="300" align="center">
-            <template slot-scope="scope">
-              <span>{{scope.row.state}}</span>
+            <template  slot-scope="scope">
+             <!-- <span>{{scope.row.state}}</span>-->
+             <!-- <el-button type="info" size="mini"  @click="handleDeletePvs" v-if="edit" v-for="pv in scope.row.pvs" >{{pv.name}}</el-button>-->
+              <el-tag v-if="edit" v-for="pv in scope.row.pvs"  closable  :disable-transitions="false" @close="handleDeletePvs(pv)">
+                {{pv.name}}
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column label="Sn" width="100" align="center">
@@ -55,14 +58,14 @@
               {{scope.row.sn}}
             </template>
           </el-table-column>
-          <el-table-column class-name="status-col" label="OrderNo" width="500" align="center">
+          <el-table-column class-name="status-col" label="OrderNo" width="100" align="center">
             <template slot-scope="scope">
               {{scope.row.orderNo}}
             </template>
           </el-table-column>
           <el-table-column label="操作" width="200">
             <template slot-scope="scope">
-              <el-button type="text" @click="message(scope.row)">点击</el-button>
+              <el-button type="primary" size="mini" v-if="edit" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
             </template>
           </el-table-column>
         </tree-table>
@@ -89,13 +92,24 @@
         </el-form-item>
 
         <el-form-item :label="$t('systemManager.orderNo')" prop="orderNo">
-          <el-input v-model="temp.orderNo"></el-input>
+          <el-input value="number" v-model="temp.orderNo"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">Cancle</el-button>
         <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">confirm</el-button>
         <el-button v-else type="primary" @click="updateData">confirm</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog :title="textMap[privDialogStatus]" :visible.sync="privDialogFormVisible">
+      <el-checkbox-group v-model="privCheckList" @change="handleCheckedPriChange">
+        <el-checkbox v-for="priv in privList"   :label="priv.id">{{priv.name}}</el-checkbox>
+      </el-checkbox-group>
+      <div slot="footer" class="dialog-footer">
+        <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll"  @change="handleCheckAllChange">全选</el-checkbox>
+        <el-button @click="privDialogFormVisible = false">Cancle</el-button>
+        <el-button  type="primary" @click="insertPriVal">Confirm</el-button>
       </div>
     </el-dialog>
 
@@ -106,13 +120,16 @@
   import treeTable from '@/components/TreeTable'
   import treeToArray from './customEval'
   import { Tree } from '@/views/modulemanager/index'
-  import { getsystems, getmodules } from '@/api/moduleManager'
+  import { getsystems, getmodules, insert, update, dodelete, deletePriVal, getAllPriVal, insertPriVal } from '@/api/moduleManager'
   export default {
     name: 'customTreeTableDemo',
     components: { Tree, treeTable },
     data() {
       return {
         func: treeToArray,
+        add: null,
+        del: null,
+        edit: null,
         expandAll: false,
         treeData: [],
         total: null,
@@ -128,29 +145,54 @@
         args: [null, null],
         textMap: {
           update: 'Edit',
-          create: 'Create'
+          create: 'Create',
+          priv: 'Add-Privilege'
         },
         dialogFormVisible: false,
         dialogStatus: '',
+        privDialogFormVisible: false,
+        privDialogStatus: '',
+        privCheckList: [],
+        checkAll: false,
+        privList: [],
         temp: {
           id: undefined,
           name: null,
           sn: '',
           url: '',
-          orderNo: ''
+          orderNo: '',
+          systemId: null
         },
         rules: {
-          name: [{ required: true, message: 'title is required', trigger: 'blur' }],
-          sn: [{ required: true, message: 'title is required', trigger: 'blur' }],
-          url: [{ required: true, message: 'title is required', trigger: 'blur' }],
-          orderNo: [{ required: true, message: 'title is required', trigger: 'blur' }]
-        }
+          name: [{ required: true, message: 'name is required', trigger: 'blur' }],
+          sn: [{ required: true, message: 'sn is required', trigger: 'blur' }],
+          url: [{ required: true, message: 'url is required', trigger: 'blur' }],
+          orderNo: [{ required: true, message: 'orderNo is required & number type', trigger: 'blur' }]
+        },
+        multipleSelection: [],
+        isIndeterminate: true
       }
     },
     created() {
       this.systems()
+      this.add = this.accessAcl('privilege', 'module', 0)
+      this.edit = this.accessAcl('privilege', 'module', 2)
+      this.del = this.accessAcl('privilege', 'module', 3)
     },
     methods: {
+      handleCheckAllChange(val) {
+        this.privCheckList = val ? this.privList : []
+        console.log(this.privCheckList)
+        this.isIndeterminate = false
+      },
+      handleCheckedPriChange(value) {
+        let checkedCount = value.length
+        this.checkAll = checkedCount === this.privList.length
+        this.isIndeterminate = checkedCount > 0 && checkedCount < this.privList.length
+      },
+      handleSelectionChange(val) {
+        this.multipleSelection = val.val
+      },
       message(row) {
         this.$message.info(row.event)
       },
@@ -178,13 +220,63 @@
           this.getmodules()
         })
       },
-      getmodules() {
-        getmodules(this.query, this.model).then((res) => {
-          this.data = res.data
-          this.total = res.total
+      handleDeletePvs() {
+        this.$confirm('永久删除, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then((res) => {
+          deletePriVal().then((res) => {
+            if (res && res.responseCode === 100) {
+              this.getmodules()
+              this.dialogFormVisible = false
+              this.$notify({
+                title: '成功',
+                message: '删除成功',
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: res.responseMsg,
+                type: 'fail',
+                duration: 2000
+              })
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
         })
       },
-      update(row) {
+      getmodules() {
+        getmodules(this.query, this.model).then((res) => {
+          this.data = res
+          this.total = res.length
+        })
+      },
+      resetTemp() {
+        this.temp = {
+          id: undefined,
+          name: null,
+          sn: '',
+          url: '',
+          orderNo: null,
+          systemId: this.model.systemId
+        }
+      },
+      handleCreate() {
+        this.resetTemp()
+        this.dialogStatus = 'create'
+        this.dialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['dataForm'].clearValidate()
+        })
+      },
+      handleUpdate(row) {
         this.temp = Object.assign({}, row) // copy obj
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
@@ -192,8 +284,144 @@
           this.$refs['dataForm'].clearValidate()
         })
       },
-      createData() {},
-      updateData() {}
+      createData() {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            insert(this.temp).then((res) => {
+              if (res && res.responseCode === 100) {
+                this.getmodules()
+                this.dialogFormVisible = false
+                this.$notify({
+                  title: '成功',
+                  message: '创建成功',
+                  type: 'success',
+                  duration: 2000
+                })
+              } else {
+                this.$notify({
+                  title: '失败',
+                  message: res.responseMsg,
+                  type: 'fail',
+                  duration: 2000
+                })
+              }
+            })
+          }
+        })
+      },
+      updateData() {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            update(this.temp).then((res) => {
+              if (res && res.responseCode === 100) {
+                this.getmodules()
+                this.dialogFormVisible = false
+                this.$notify({
+                  title: '成功',
+                  message: '修改成功',
+                  type: 'success',
+                  duration: 2000
+                })
+              } else {
+                this.$notify({
+                  title: '失败',
+                  message: res.responseMsg,
+                  type: 'fail',
+                  duration: 2000
+                })
+              }
+            })
+          }
+        })
+      },
+      handleDelete() {
+        if (this.multipleSelection.length === 0) {
+          this.$message({
+            type: 'success',
+            message: '请选择一条数据!'
+          })
+          return
+        }
+        this.$confirm('永久删除, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let idsstr = ''
+          for (let i = 0; i < this.multipleSelection.length; i++) {
+            if (i === 0) {
+              idsstr += idsstr + this.multipleSelection[i].id
+            } else {
+              idsstr += ',' + this.multipleSelection[i].id
+            }
+          }
+          dodelete(idsstr).then((res) => {
+            if (res && res.responseCode === 100) {
+              this.getmodules()
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+            } else {
+              this.$notify({
+                title: '删除失败',
+                message: res.responseMsg,
+                type: 'fail',
+                duration: 2000
+              })
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
+      },
+      getAllPriVal() {
+        if (this.multipleSelection.length === 0) {
+          this.$message({
+            type: 'success',
+            message: '请选择一条数据!'
+          })
+          return
+        }
+        getAllPriVal(this.multipleSelection[0].id, this.model.systemId).then((res) => {
+          this.privList = res
+          this.privCheckList = []
+          this.privDialogStatus = 'priv'
+          this.privDialogFormVisible = true
+        })
+      },
+      insertPriVal() {
+        if (this.privCheckList.length === 0) {
+          return
+        }
+        let pvs = ''
+        for (let i = 0; i < this.privCheckList.length; i++) {
+          if (i === 0) {
+            pvs += pvs + this.privCheckList[i].id
+          } else {
+            pvs += ',' + this.privCheckList[i].id
+          }
+        }
+        insertPriVal(pvs, this.multipleSelection[0].id).then((res) => {
+          if (res && res.responseCode === 100) {
+            this.getmodules()
+            this.$message({
+              type: 'success',
+              message: '设置成功!'
+            })
+          } else {
+            this.$notify({
+              title: '设置失败',
+              message: res.responseMsg,
+              type: 'fail',
+              duration: 2000
+            })
+          }
+        })
+      }
     }
   }
 </script>
