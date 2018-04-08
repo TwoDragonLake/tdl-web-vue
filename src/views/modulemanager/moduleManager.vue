@@ -66,6 +66,7 @@
           <el-table-column label="操作" width="200">
             <template slot-scope="scope">
               <el-button type="primary" size="mini" v-if="edit" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
+              <el-button type="primary" size="mini" v-if="edit"  icon="el-icon-plus" @click="handleCreate(scope.row.id)"></el-button>
             </template>
           </el-table-column>
         </tree-table>
@@ -161,7 +162,8 @@
           sn: '',
           url: '',
           orderNo: '',
-          systemId: null
+          systemId: null,
+          pid: null
         },
         rules: {
           name: [{ required: true, message: 'name is required', trigger: 'blur' }],
@@ -184,7 +186,7 @@
         let tempArrIds = []
         if (this.privList.length > 0) {
           for (let i = 0; i < this.privList.length; i++) {
-            tempArrIds[i] = this.privList[i].id
+            tempArrIds[i] = this.privList[i].position
           }
         }
         this.privCheckList = val ? tempArrIds : []
@@ -261,7 +263,7 @@
       },
       getmodules() {
         getmodules(this.query, this.model).then((res) => {
-          this.data = res.datas
+          this.data = res.data
           this.total = res.total
         })
       },
@@ -272,11 +274,15 @@
           sn: '',
           url: '',
           orderNo: null,
-          systemId: this.model.systemId
+          systemId: this.model.systemId,
+          pid: null
         }
       },
-      handleCreate() {
+      handleCreate(pid) {
         this.resetTemp()
+        if (pid) {
+          this.temp.pid = pid
+        }
         this.dialogStatus = 'create'
         this.dialogFormVisible = true
         this.$nextTick(() => {
