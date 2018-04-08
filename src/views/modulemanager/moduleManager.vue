@@ -103,11 +103,11 @@
     </el-dialog>
 
     <el-dialog :title="textMap[privDialogStatus]" :visible.sync="privDialogFormVisible">
+      <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll"  @change="handleCheckAllChange">全选</el-checkbox>
       <el-checkbox-group v-model="privCheckList" @change="handleCheckedPriChange">
-        <el-checkbox v-for="priv in privList"   :label="priv.id">{{priv.name}}</el-checkbox>
+        <el-checkbox v-for="priv in privList"   :label="priv.position">{{priv.name}}</el-checkbox>
       </el-checkbox-group>
       <div slot="footer" class="dialog-footer">
-        <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll"  @change="handleCheckAllChange">全选</el-checkbox>
         <el-button @click="privDialogFormVisible = false">Cancle</el-button>
         <el-button  type="primary" @click="insertPriVal">Confirm</el-button>
       </div>
@@ -181,14 +181,21 @@
     },
     methods: {
       handleCheckAllChange(val) {
-        this.privCheckList = val ? this.privList : []
-        console.log(this.privCheckList)
+        let tempArrIds = []
+        if (this.privList.length > 0) {
+          for (let i = 0; i < this.privList.length; i++) {
+            tempArrIds[i] = this.privList[i].id
+          }
+        }
+        this.privCheckList = val ? tempArrIds : []
         this.isIndeterminate = false
+        console.log(this.privCheckList)
       },
       handleCheckedPriChange(value) {
         let checkedCount = value.length
         this.checkAll = checkedCount === this.privList.length
         this.isIndeterminate = checkedCount > 0 && checkedCount < this.privList.length
+        console.log(this.privCheckList)
       },
       handleSelectionChange(val) {
         this.multipleSelection = val.val
@@ -220,13 +227,13 @@
           this.getmodules()
         })
       },
-      handleDeletePvs() {
+      handleDeletePvs(pv) {
         this.$confirm('永久删除, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then((res) => {
-          deletePriVal().then((res) => {
+          deletePriVal(pv.id, pv.moduleId).then((res) => {
             if (res && res.responseCode === 100) {
               this.getmodules()
               this.dialogFormVisible = false
@@ -254,8 +261,8 @@
       },
       getmodules() {
         getmodules(this.query, this.model).then((res) => {
-          this.data = res
-          this.total = res.length
+          this.data = res.datas
+          this.total = res.total
         })
       },
       resetTemp() {
@@ -397,21 +404,14 @@
         if (this.privCheckList.length === 0) {
           return
         }
-        let pvs = ''
-        for (let i = 0; i < this.privCheckList.length; i++) {
-          if (i === 0) {
-            pvs += pvs + this.privCheckList[i].id
-          } else {
-            pvs += ',' + this.privCheckList[i].id
-          }
-        }
-        insertPriVal(pvs, this.multipleSelection[0].id).then((res) => {
+        insertPriVal(this.privCheckList.join(','), this.multipleSelection[0].id).then((res) => {
           if (res && res.responseCode === 100) {
             this.getmodules()
             this.$message({
               type: 'success',
               message: '设置成功!'
             })
+            this.privDialogFormVisible = false
           } else {
             this.$notify({
               title: '设置失败',

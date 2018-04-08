@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-input placeholder="Filter keyword" v-model="filterText" style="margin-bottom:30px;"></el-input>
 
-    <el-tree class="filter-tree" :data="datas"  @node-click="handleNodeClick"  ref="tree"
+    <el-tree class="filter-tree" :data="datas"  @node-click="handleNodeClick"  ref="tree2"
              :props="defaultProps" default-expand-all :filter-node-method="filterNode" ></el-tree>
 
   </div>
@@ -25,10 +25,10 @@ export default {
   methods: {
     filterNode(value, data) {
       if (!value) return true
-      return data.label.indexOf(value) !== -1
+      return data.text.indexOf(value) !== -1
     },
     handleNodeClick() {
-      this.$emit('node-click', { node: this.$refs.tree.getCurrentNode() })
+      this.$emit('node-click', { node: this.$refs.tree2.getCurrentNode() })
     }
   },
 

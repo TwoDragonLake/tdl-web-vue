@@ -85,7 +85,7 @@ export function getAllPriVal(moduleId, systemId) {
 
 export function insertPriVal(pvs, moduleId) {
   return request({
-    url: '/managment/privilege/module/getAllPriVal.do',
+    url: '/managment/privilege/module/insertPriVal.do',
     method: 'post',
     data: {
       pvs: pvs,
