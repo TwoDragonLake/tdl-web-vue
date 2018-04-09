@@ -11,25 +11,6 @@
         </div>
         <hr>
         <tree-table :data="data" :evalFunc="func" :evalArgs="args" :expandAll="expandAll"  @selection-change="handleSelectionChange">
-<!--          <el-table-column label="事件">
-            <template slot-scope="scope">
-              <span style="color:sandybrown">{{scope.row.event}}</span>
-              <el-tag>{{scope.row.timeLine+'ms'}}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="时间线">
-            <template slot-scope="scope">
-              <el-tooltip effect="dark" :content="scope.row.timeLine+'ms'" placement="left">
-                <div class="processContainer">
-                  <div class="process" :style="{ width:scope.row._width * 500+'px',
-              background:scope.row._width>0.5?'rgba(233,0,0,.5)':'rgba(0,0,233,0.5)',
-              marginLeft:scope.row._marginLeft * 500+'px' }">
-                    <span style="display:inline-block"></span>
-                  </div>
-                </div>
-              </el-tooltip>
-            </template>
-          </el-table-column>-->
           <el-table-column
             type="selection"
             width="55">
@@ -46,8 +27,6 @@
           </el-table-column>
           <el-table-column label="State" width="300" align="center">
             <template  slot-scope="scope">
-             <!-- <span>{{scope.row.state}}</span>-->
-             <!-- <el-button type="info" size="mini"  @click="handleDeletePvs" v-if="edit" v-for="pv in scope.row.pvs" >{{pv.name}}</el-button>-->
               <el-tag v-if="edit" v-for="pv in scope.row.pvs"  closable  :disable-transitions="false" @close="handleDeletePvs(pv)">
                 {{pv.name}}
               </el-tag>
@@ -71,11 +50,11 @@
           </el-table-column>
         </tree-table>
 
-        <div class="pagination-container">
+        <!--<div class="pagination-container">
           <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="query.pageIndex"
                          :page-sizes="[10,20,30, 50]" :page-size="query.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
           </el-pagination>
-        </div>
+        </div>-->
       </div>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
@@ -183,7 +162,7 @@
     },
     methods: {
       handleCheckAllChange(val) {
-        let tempArrIds = []
+        const tempArrIds = []
         if (this.privList.length > 0) {
           for (let i = 0; i < this.privList.length; i++) {
             tempArrIds[i] = this.privList[i].position
@@ -194,7 +173,7 @@
         console.log(this.privCheckList)
       },
       handleCheckedPriChange(value) {
-        let checkedCount = value.length
+        const checkedCount = value.length
         this.checkAll = checkedCount === this.privList.length
         this.isIndeterminate = checkedCount > 0 && checkedCount < this.privList.length
         console.log(this.privCheckList)
@@ -263,8 +242,7 @@
       },
       getmodules() {
         getmodules(this.query, this.model).then((res) => {
-          this.data = res.data
-          this.total = res.total
+          this.data = res
         })
       },
       resetTemp() {

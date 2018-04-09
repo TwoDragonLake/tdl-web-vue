@@ -50,6 +50,17 @@ export function update(module) {
     }
   })
 }
+// 删除模块
+export function dodelete(ids) {
+  return request({
+    url: '/managment/privilege/module/delete.do',
+    method: 'post',
+    data: {
+      ids: ids
+    }
+  })
+}
+
 // 删除模块权限
 export function deletePriVal(systemPrivilegeValueId, moduleId) {
   return request({
@@ -61,16 +72,7 @@ export function deletePriVal(systemPrivilegeValueId, moduleId) {
     }
   })
 }
-// 删除模块
-export function dodelete(ids) {
-  return request({
-    url: '/managment/privilege/module/delete.do',
-    method: 'post',
-    data: {
-      ids: ids
-    }
-  })
-}
+
 // 拉取可以授权给模块的权限列表
 export function getAllPriVal(moduleId, systemId) {
   return request({
@@ -83,6 +85,7 @@ export function getAllPriVal(moduleId, systemId) {
   })
 }
 
+// 添加模块权限值
 export function insertPriVal(pvs, moduleId) {
   return request({
     url: '/managment/privilege/module/insertPriVal.do',

@@ -137,5 +137,9 @@ export default {
     url: 'url',
     note: 'note',
     orderNo: 'orderNo'
+  },
+  departmentManager: {
+    name: 'name',
+    note: 'note'
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <el-table :data="formatData" :row-style="showRow" v-bind="$attrs" @selection-change="handleSelectionChange">
-    <el-table-column v-if="columns.length===0" width="55" >
+    <el-table-column v-if="columns.length===0" width="150" >
       <template slot-scope="scope">
         <span v-for="space in scope.row._level" class="ms-tree-space" :key="space"></span>
         <span class="tree-ctrl" v-if="iconShow(0,scope.row)" @click="toggleExpanded(scope.$index)">
@@ -46,6 +46,14 @@ export default {
     expandAll: {
       type: Boolean,
       default: false
+    }
+  },
+  watch: {
+    expandAll: function() {
+      for (let i = 0; i < this.formatData.length; i++) {
+        const record = this.formatData[i]
+        record._expanded = this.expandAll
+      }
     }
   },
   computed: {

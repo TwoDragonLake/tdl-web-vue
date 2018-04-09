@@ -137,5 +137,9 @@ export default {
     url: 'url',
     note: '备注',
     orderNo: '序号'
+  },
+  departmentManager: {
+    name: '名称',
+    note: '备注'
   }
 }
