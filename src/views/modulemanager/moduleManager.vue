@@ -57,7 +57,7 @@
         </div>-->
       </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible"  width="40%">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('systemManager.name')" prop="name">
           <el-input v-model="temp.name"></el-input>
@@ -82,7 +82,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog :title="textMap[privDialogStatus]" :visible.sync="privDialogFormVisible">
+    <el-dialog :title="textMap[privDialogStatus]" :visible.sync="privDialogFormVisible"  width="40%">
       <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll"  @change="handleCheckAllChange">全选</el-checkbox>
       <el-checkbox-group v-model="privCheckList" @change="handleCheckedPriChange">
         <el-checkbox v-for="priv in privList"   :label="priv.position">{{priv.name}}</el-checkbox>

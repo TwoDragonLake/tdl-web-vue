@@ -17,105 +17,148 @@
       <div >
         <el-row :gutter="20">
           <el-col :span="2" class="mycenter"  >用户名:</el-col>
-          <el-col :span="4"><el-input v-model="input"   placeholder="请输入内容"></el-input></el-col>
+          <el-col :span="4"><el-input v-model="queryModel.username"   placeholder="请输入内容"></el-input></el-col>
           <el-col :span="1" class="mycenter" >姓名:</el-col>
-          <el-col :span="3"><el-input v-model="input"  placeholder="请输入内容"></el-input></el-col>
+          <el-col :span="3"><el-input v-model="queryModel.realName"  placeholder="请输入内容"></el-input></el-col>
           <el-col :span="1" class="mycenter" >手机:</el-col>
-          <el-col :span="4"><el-input v-model="input"  placeholder="请输入内容"></el-input></el-col>
+          <el-col :span="4"><el-input v-model="queryModel.mobile"  placeholder="请输入内容"></el-input></el-col>
           <el-col :span="1" class="mycenter" >邮箱:</el-col>
-          <el-col :span="4"><el-input v-model="input"  placeholder="请输入内容"></el-input></el-col>
-          <el-col :span="1"> <el-button type="primary" icon="el-icon-search"></el-button></el-col>
+          <el-col :span="4"><el-input v-model="queryModel.email"  placeholder="请输入内容"></el-input></el-col>
+          <el-col :span="1"> <el-button type="primary" @click="fetchData" icon="el-icon-search"></el-button></el-col>
         </el-row>
       </div>
-      <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
-        <el-table-column align="center" label='ID' width="95">
+      <el-table :data="data" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
+        <el-table-column align="center" label='username' width="95">
           <template slot-scope="scope">
-            {{scope.$index}}
+            {{scope.row.username}}
           </template>
         </el-table-column>
-        <el-table-column label="Title">
+        <el-table-column label="realName">
           <template slot-scope="scope">
-            {{scope.row.title}}
+            {{scope.row.realName}}
           </template>
         </el-table-column>
-        <el-table-column label="Author" width="110" align="center">
+        <el-table-column label="sex" width="110" align="center">
           <template slot-scope="scope">
-            <span>{{scope.row.author}}</span>
+            <span>{{(scope.row.sex === 0)?'男':'女'}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Pageviews" width="110" align="center">
+        <el-table-column label="roles" width="110" align="center">
           <template slot-scope="scope">
-            {{scope.row.pageviews}}
+            {{scope.row.roles}}
           </template>
         </el-table-column>
-        <el-table-column class-name="status-col" label="Status" width="110" align="center">
+        <el-table-column label="mobile" width="110" align="center">
           <template slot-scope="scope">
-            <el-tag :type="scope.row.status | statusFilter">{{scope.row.status}}</el-tag>
+            {{scope.row.mobile}}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="created_at" label="Display_time" width="200">
+        <el-table-column label="phone" width="110" align="center">
           <template slot-scope="scope">
-            <i class="el-icon-time"></i>
-            <span>{{scope.row.display_time}}</span>
+            {{scope.row.phone}}
+          </template>
+        </el-table-column>
+        <el-table-column label="email" width="110" align="center">
+          <template slot-scope="scope">
+            {{scope.row.email}}
+          </template>
+        </el-table-column>
+        <el-table-column label="deptName" width="110" align="center">
+          <template slot-scope="scope">
+            {{scope.row.deptName}}
           </template>
         </el-table-column>
       </el-table>
+
+      <div class="pagination-container">
+        <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="query.pageIndex"
+                       :page-sizes="[10,20,30, 50]" :page-size="query.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+        </el-pagination>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script>
-import { Tree } from '@/views/usermanager/index'
-import { getDeptTree } from '@/api/departmentManager'
-export default {
-  name: 'UserManager',
-  components: {
-    Tree
-  },
-  data() {
-    return {
-      listLoading: true,
-      treeData: null,
-      querymodel: {
-        departmentId: null
+  import { Tree } from '@/views/usermanager/index'
+  import { getDeptTree } from '@/api/departmentManager'
+  import { fetchData } from '@/api/userMananger'
+  export default {
+    name: 'UserManager',
+    components: {
+      Tree
+    },
+    data() {
+      return {
+        listLoading: true,
+        treeData: null,
+        queryModel: {
+          departmentId: null,
+          username: null,
+          realName: null,
+          mobile: null,
+          email: null
+        },
+        query: {
+          pageIndex: 1,
+          pageSize: 20
+        },
+        data: null,
+        total: null
+      }
+    },
+    filters: {
+      statusFilter(status) {
+        const statusMap = {
+          published: 'success',
+          draft: 'gray',
+          deleted: 'danger'
+        }
+        return statusMap[status]
+      }
+    },
+    created() {
+      this.getDeptTree()
+    },
+    methods: {
+      getDeptTree() {
+        getDeptTree().then((res) => {
+          this.treeData = res
+          if (this.treeData.length > 0) {
+            this.queryModel.departmentId = this.treeData[0].id
+          }
+          this.fetchData()
+        })
       },
-      query: {
-        pageIndex: 1,
-        pageSize: 20
+      fetchData() {
+        this.listLoading = true
+        fetchData(this.queryModel, this.query).then((res) => {
+          this.data = res.data
+          this.total = res.total
+          this.listLoading = false
+        })
+      },
+      handleTreeClick(payload) {
+        this.queryModel.departmentId = payload.node.id
+        this.$nextTick(() => {
+          this.fetchData()
+        })
+      },
+      handleCurrentChange(val) {
+        this.query.pageIndex = val
+        this.$nextTick(() => {
+          this.fetchData()
+        })
+      },
+      handleSizeChange(val) {
+        this.query.pageSize = val
+        this.$nextTick(() => {
+          this.fetchData()
+        })
       }
-    }
-  },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        published: 'success',
-        draft: 'gray',
-        deleted: 'danger'
-      }
-      return statusMap[status]
-    }
-  },
-  created() {
-    this.getDeptTree()
-    //  this.fetchData()
-  },
-  methods: {
-    getDeptTree() {
-      getDeptTree().then((res) => {
-        this.treeData = res
-      })
-    },
-    fetchData() {
-      this.listLoading = true
-    },
-    handleTreeClick(payload) {
-      this.querymodel.departmentId = payload.node.id
-      this.$nextTick(() => {
-        this.fetchData()
-      })
     }
   }
-}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

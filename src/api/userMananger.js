@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function fetchData(user, query) {
   return request({
-    url: '/managment/privilege/dept/update.do',
+    url: '/managment/privilege/user/ajaxlist.do',
     method: 'post',
     data: {
       user: JSON.stringify(user),

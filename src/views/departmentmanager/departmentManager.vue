@@ -12,17 +12,17 @@
         type="selection"
         width="55">
       </el-table-column>
-      <el-table-column align="center" label='Name' width="100">
+      <el-table-column align="center" label='Name' width="200">
         <template slot-scope="scope">
           {{scope.row.name}}
         </template>
       </el-table-column>
-      <el-table-column label="Note" width="150">
+      <el-table-column label="Note" width="500">
         <template slot-scope="scope">
           {{scope.row.note}}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="200">
+      <el-table-column label="操作" width="350">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" v-if="edit" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button type="primary" size="mini" v-if="edit"  icon="el-icon-plus" @click="handleCreate(scope.row.id)"></el-button>
@@ -30,7 +30,7 @@
       </el-table-column>
     </tree-table>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible"  width="40%">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('departmentManager.name')" prop="name">
           <el-input v-model="temp.name"></el-input>
