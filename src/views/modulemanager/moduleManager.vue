@@ -27,7 +27,7 @@
           </el-table-column>
           <el-table-column label="State" width="300" align="center">
             <template  slot-scope="scope">
-              <el-tag v-if="edit" v-for="pv in scope.row.pvs"  closable  :disable-transitions="false" @close="handleDeletePvs(pv)">
+              <el-tag v-if="edit" v-for="pv in scope.row.pvs"  :key="pv" closable  :disable-transitions="false" @close="handleDeletePvs(pv)">
                 {{pv.name}}
               </el-tag>
             </template>
@@ -85,7 +85,7 @@
     <el-dialog :title="textMap[privDialogStatus]" :visible.sync="privDialogFormVisible"  width="40%">
       <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll"  @change="handleCheckAllChange">全选</el-checkbox>
       <el-checkbox-group v-model="privCheckList" @change="handleCheckedPriChange">
-        <el-checkbox v-for="priv in privList"   :label="priv.position">{{priv.name}}</el-checkbox>
+        <el-checkbox v-for="priv in privList"  :key="priv"  :label="priv.position">{{priv.name}}</el-checkbox>
       </el-checkbox-group>
       <div slot="footer" class="dialog-footer">
         <el-button @click="privDialogFormVisible = false">Cancle</el-button>

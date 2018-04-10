@@ -44,11 +44,21 @@ export function dodelete(ids) {
   })
 }
 
-
 export function getDeptTree() {
   try {
     return request({
       url: '/managment/privilege/dept/getDeptTree.do',
+      method: 'post'
+    })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export function getDeptList() {
+  try {
+    return request({
+      url: '/managment/privilege/dept/getDeptList.do',
       method: 'post'
     })
   } catch (err) {

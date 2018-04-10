@@ -141,5 +141,18 @@ export default {
   departmentManager: {
     name: '名称',
     note: '备注'
+  },
+  userManager: {
+    username: '用户名',
+    realName: '姓名',
+    mobile: '手机',
+    tel: '电话',
+    email: '邮箱',
+    address: '地址',
+    systems: '所属系统',
+    sex: '性别',
+    phone: '座机',
+    fax: '传真',
+    department: '部门'
   }
 }

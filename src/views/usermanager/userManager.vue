@@ -5,9 +5,8 @@
     </div>
     <div class="treetable-right">
       <div>
-        <el-button type="primary" v-if="add" icon="el-icon-plus"></el-button>
-        <el-button type="primary" v-if="edit" icon="el-icon-edit"></el-button>
-        <el-button type="primary" v-if="del" icon="el-icon-delete"></el-button>
+        <el-button type="primary" v-if="add" @click="handleCreate" icon="el-icon-plus"></el-button>
+        <el-button type="primary" v-if="del" @click="handleDelete" icon="el-icon-delete"></el-button>
         <el-button type="primary" v-if="read" icon="el-icon-info">查看详情</el-button>
         <el-button type="primary" v-if="edit" icon="el-icon-setting">分配角色</el-button>
         <el-button type="primary" v-if="acl" icon="el-icon-setting">操作授权</el-button>
@@ -28,6 +27,10 @@
         </el-row>
       </div>
       <el-table :data="data" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
+        <el-table-column
+          type="selection"
+          width="55">
+        </el-table-column>
         <el-table-column align="center" label='username' width="95">
           <template slot-scope="scope">
             {{scope.row.username}}
@@ -68,6 +71,11 @@
             {{scope.row.deptName}}
           </template>
         </el-table-column>
+        <el-table-column label="操作" width="200">
+          <template slot-scope="scope">
+            <el-button type="primary" size="mini" v-if="edit" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
+          </template>
+        </el-table-column>
       </el-table>
 
       <div class="pagination-container">
@@ -77,22 +85,76 @@
       </div>
 
       <!--  人员添加/修改 -->
-      <el-dialog :title="textMap[dialogStatus]" :visible.sync="editDialogFormVisible"  width="40%">
-        <el-form :rules="rules" ref="editDataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-          <el-form-item :label="$t('systemManager.name')" prop="name">
-            <el-input v-model="temp.name"></el-input>
+      <el-dialog :title="textMap[dialogStatus]" :visible.sync="editDialogFormVisible"  width="70%">
+        <el-form :rules="rules" ref="editDataForm" :model="editModel" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item :label="$t('userManager.username')" prop="username">
+                <el-input v-model="editModel.username"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('userManager.realname')" prop="realName">
+                <el-input v-model="editModel.realName"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+
+
+          <el-form-item :label="$t('userManager.mobile')" >
+            <el-input v-model="editModel.mobile"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('userManager.phone')" >
+            <el-input v-model="editModel.phone"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('userManager.email')" prop="email">
+            <el-input v-model="editModel.email"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('userManager.address')" >
+            <el-input v-model="editModel.address"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('userManager.systems')" prop="systemIds">
+            <el-select
+              v-model="editModel.systemIds"
+              multiple
+              filterable
+              allow-create
+              default-first-option
+              placeholder="请选择">
+              <el-option
+                v-for="item in systems"
+                :key="item.id"
+                :label="item.text"
+                :value="item.id">
+              </el-option>
+            </el-select>
           </el-form-item>
 
-          <el-form-item :label="$t('systemManager.sn')" prop="sn">
-            <el-input v-model="temp.sn"></el-input>
+          <el-form-item :label="$t('userManager.sex')" prop="sex">
+            <el-input v-model="editModel.sex"></el-input>
           </el-form-item>
-
-          <el-form-item :label="$t('systemManager.url')" prop="url">
-            <el-input v-model="temp.url"></el-input>
+          <el-form-item :label="$t('userManager.phone')" >
+            <el-input v-model="editModel.phone"></el-input>
           </el-form-item>
-
-          <el-form-item :label="$t('systemManager.orderNo')" prop="orderNo">
-            <el-input value="number" v-model="temp.orderNo"></el-input>
+          <el-form-item :label="$t('userManager.fax')" >
+            <el-input v-model="editModel.fax"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('userManager.department')" prop="departmentId">
+            <el-select
+              v-model="editModel.departmentId"
+              multiple
+              filterable
+              allow-create
+              default-first-option
+              placeholder="请选择">
+              <el-option
+                v-for="item in deptList"
+                :key="item.id"
+                :label="item.text"
+                :value="item.id">
+              </el-option>
+            </el-select>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -108,14 +170,30 @@
 
 <script>
   import { Tree } from '@/views/usermanager/index'
-  import { getDeptTree } from '@/api/departmentManager'
-  import { fetchData } from '@/api/userMananger'
+  import { getDeptTree, getDeptList } from '@/api/departmentManager'
+  import { getsystems } from '@/api/moduleManager'
+  import { fetchData, insert, update, dodelete, checkUserNameExsits/*, getRoles, saveUserRole, getAllPriValBySystemSn, setAcl, setAclByModule, setAllAcl, updatePassowrd*/ } from '@/api/userMananger'
   export default {
     name: 'UserManager',
     components: {
       Tree
     },
     data() {
+      var validatePass = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入用户名'))
+        } else {
+          checkUserNameExsits(this.editModel).then((res) => {
+            this.isExit = res
+          })
+          this.$nextTick(() => {
+            if (this.isExit === 1) {
+              callback(new Error('用户名已存在'))
+            }
+            callback()
+          })
+        }
+      }
       return {
         add: null,
         read: null,
@@ -135,6 +213,7 @@
           pageIndex: 1,
           pageSize: 20
         },
+        multipleSelection: [],
         data: null,
         total: null,
         textMap: {
@@ -161,6 +240,17 @@
           departmentId: null,
           password: null,
           confirmPassword: null
+        },
+        systems: null,
+        deptList: null,
+        isExit: null,
+        rules: {
+          username: [{ validator: validatePass, trigger: 'blur' }],
+          realName: [{ required: true, message: 'realName is required', trigger: 'blur' }],
+          email: [{ required: true, message: 'email is required ', trigger: 'blur' }],
+          systemIds: [{ required: true, message: 'systems is required ', trigger: 'blur' }],
+          sex: [{ required: true, message: 'sex is required', trigger: 'blur' }],
+          departmentId: [{ required: true, message: 'department is required', trigger: 'blur' }]
         },
         privModel: {
           systems: null,
@@ -206,12 +296,22 @@
           this.fetchData()
         })
       },
+      getDeptList() {
+        getDeptList().then((res) => {
+          this.deptList = res
+        })
+      },
       fetchData() {
         this.listLoading = true
         fetchData(this.queryModel, this.query).then((res) => {
           this.data = res.data
           this.total = res.total
           this.listLoading = false
+        })
+      },
+      getsystems() {
+        getsystems().then(response => {
+          this.systems = response
         })
       },
       handleTreeClick(payload) {
@@ -232,19 +332,29 @@
           this.fetchData()
         })
       },
-      resetTemp() {
-        this.temp = {
-          id: undefined,
-          name: null,
-          sn: '',
-          url: '',
-          orderNo: null,
-          systemId: this.model.systemId,
-          pid: null
+      resetEditModel() {
+        this.editModel = {
+          id: null,
+          username: null,
+          realName: null,
+          mobile: null,
+          tel: null,
+          email: null,
+          address: null,
+          systemIds: null,
+          sex: null,
+          phone: null,
+          fax: null,
+          departmentId: null,
+          password: null,
+          confirmPassword: null
         }
+        this.editModel.departmentId = this.queryModel.departmentId
       },
       handleCreate() {
-        this.resetTemp()
+        this.resetEditModel()
+        this.getsystems()
+        this.getDeptList()
         this.dialogStatus = 'create'
         this.editDialogFormVisible = true
         this.$nextTick(() => {
@@ -252,7 +362,9 @@
         })
       },
       handleUpdate(row) {
-        this.temp = Object.assign({}, row) // copy obj
+        this.getsystems()
+        this.getDeptList()
+        this.editModel = Object.assign({}, row) // copy obj
         this.dialogStatus = 'update'
         this.editDialogFormVisible = true
         this.$nextTick(() => {
@@ -260,12 +372,12 @@
         })
       },
       createData() {
-        this.$refs['dataForm'].validate((valid) => {
+        this.$refs['editDataForm'].validate((valid) => {
           if (valid) {
-            insert(this.temp).then((res) => {
+            insert(this.editModel).then((res) => {
               if (res && res.responseCode === 100) {
-                this.getmodules()
-                this.dialogFormVisible = false
+                this.fetchData()
+                this.editDialogFormVisible = false
                 this.$notify({
                   title: '成功',
                   message: '创建成功',
@@ -285,12 +397,12 @@
         })
       },
       updateData() {
-        this.$refs['dataForm'].validate((valid) => {
+        this.$refs['editDataForm'].validate((valid) => {
           if (valid) {
-            update(this.temp).then((res) => {
+            update(this.editModel).then((res) => {
               if (res && res.responseCode === 100) {
-                this.getmodules()
-                this.dialogFormVisible = false
+                this.fetchData()
+                this.editDialogFormVisible = false
                 this.$notify({
                   title: '成功',
                   message: '修改成功',
@@ -332,7 +444,7 @@
           }
           dodelete(idsstr).then((res) => {
             if (res && res.responseCode === 100) {
-              this.getmodules()
+              this.fetchData()
               this.$message({
                 type: 'success',
                 message: '删除成功!'

@@ -141,5 +141,18 @@ export default {
   departmentManager: {
     name: 'name',
     note: 'note'
+  },
+  userManager: {
+    username: 'userName',
+    realname: 'realName',
+    mobile: 'mobile',
+    tel: 'telPhone',
+    email: 'email',
+    address: 'address',
+    systems: 'systems',
+    sex: 'sex',
+    phone: 'phone',
+    fax: 'fax',
+    department: 'department'
   }
 }
