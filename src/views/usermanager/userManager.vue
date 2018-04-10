@@ -5,13 +5,13 @@
     </div>
     <div class="treetable-right">
       <div>
-        <el-button type="primary" icon="el-icon-plus"></el-button>
-        <el-button type="primary" icon="el-icon-edit"></el-button>
-        <el-button type="primary" icon="el-icon-delete"></el-button>
-        <el-button type="primary" icon="el-icon-info">查看详情</el-button>
-        <el-button type="primary" icon="el-icon-setting">分配角色</el-button>
-        <el-button type="primary" icon="el-icon-setting">操作授权</el-button>
-        <el-button type="primary" icon="el-icon-view">修改密码</el-button>
+        <el-button type="primary" v-if="add" icon="el-icon-plus"></el-button>
+        <el-button type="primary" v-if="edit" icon="el-icon-edit"></el-button>
+        <el-button type="primary" v-if="del" icon="el-icon-delete"></el-button>
+        <el-button type="primary" v-if="read" icon="el-icon-info">查看详情</el-button>
+        <el-button type="primary" v-if="edit" icon="el-icon-setting">分配角色</el-button>
+        <el-button type="primary" v-if="acl" icon="el-icon-setting">操作授权</el-button>
+        <el-button type="primary" v-if="edit" icon="el-icon-view">修改密码</el-button>
       </div>
       <hr>
       <div >
@@ -76,6 +76,32 @@
         </el-pagination>
       </div>
 
+      <!--  人员添加/修改 -->
+      <el-dialog :title="textMap[dialogStatus]" :visible.sync="editDialogFormVisible"  width="40%">
+        <el-form :rules="rules" ref="editDataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
+          <el-form-item :label="$t('systemManager.name')" prop="name">
+            <el-input v-model="temp.name"></el-input>
+          </el-form-item>
+
+          <el-form-item :label="$t('systemManager.sn')" prop="sn">
+            <el-input v-model="temp.sn"></el-input>
+          </el-form-item>
+
+          <el-form-item :label="$t('systemManager.url')" prop="url">
+            <el-input v-model="temp.url"></el-input>
+          </el-form-item>
+
+          <el-form-item :label="$t('systemManager.orderNo')" prop="orderNo">
+            <el-input value="number" v-model="temp.orderNo"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="editDialogFormVisible = false">Cancle</el-button>
+          <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">confirm</el-button>
+          <el-button v-else type="primary" @click="updateData">confirm</el-button>
+        </div>
+      </el-dialog>
+
     </div>
   </div>
 </template>
@@ -91,6 +117,11 @@
     },
     data() {
       return {
+        add: null,
+        read: null,
+        del: null,
+        edit: null,
+        acl: null,
         listLoading: true,
         treeData: null,
         queryModel: {
@@ -105,7 +136,46 @@
           pageSize: 20
         },
         data: null,
-        total: null
+        total: null,
+        textMap: {
+          update: 'Edit',
+          create: 'Create',
+          acl: 'Set-Acl',
+          role: 'Set-Role',
+          password: 'Set-Password'
+        },
+        dialogStatus: null,
+        editDialogFormVisible: false,
+        editModel: {
+          id: null,
+          username: null,
+          realName: null,
+          mobile: null,
+          tel: null,
+          email: null,
+          address: null,
+          systemIds: null,
+          sex: null,
+          phone: null,
+          fax: null,
+          departmentId: null,
+          password: null,
+          confirmPassword: null
+        },
+        privModel: {
+          systems: null,
+          privs: null,
+          selectedPrivs: []
+        },
+        roleModel: {
+          query: {
+            name: null,
+            sn: null,
+            userId: null
+          },
+          roleList: null,
+          selectedRoles: []
+        }
       }
     },
     filters: {
@@ -119,6 +189,11 @@
       }
     },
     created() {
+      this.add = this.accessAcl('privilege', 'user', 0)
+      this.read = this.accessAcl('privilege', 'user', 1)
+      this.edit = this.accessAcl('privilege', 'user', 2)
+      this.del = this.accessAcl('privilege', 'user', 3)
+      this.acl = this.accessAcl('privilege', 'user', 6)
       this.getDeptTree()
     },
     methods: {
@@ -155,6 +230,127 @@
         this.query.pageSize = val
         this.$nextTick(() => {
           this.fetchData()
+        })
+      },
+      resetTemp() {
+        this.temp = {
+          id: undefined,
+          name: null,
+          sn: '',
+          url: '',
+          orderNo: null,
+          systemId: this.model.systemId,
+          pid: null
+        }
+      },
+      handleCreate() {
+        this.resetTemp()
+        this.dialogStatus = 'create'
+        this.editDialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['editDataForm'].clearValidate()
+        })
+      },
+      handleUpdate(row) {
+        this.temp = Object.assign({}, row) // copy obj
+        this.dialogStatus = 'update'
+        this.editDialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['editDataForm'].clearValidate()
+        })
+      },
+      createData() {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            insert(this.temp).then((res) => {
+              if (res && res.responseCode === 100) {
+                this.getmodules()
+                this.dialogFormVisible = false
+                this.$notify({
+                  title: '成功',
+                  message: '创建成功',
+                  type: 'success',
+                  duration: 2000
+                })
+              } else {
+                this.$notify({
+                  title: '失败',
+                  message: res.responseMsg,
+                  type: 'fail',
+                  duration: 2000
+                })
+              }
+            })
+          }
+        })
+      },
+      updateData() {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            update(this.temp).then((res) => {
+              if (res && res.responseCode === 100) {
+                this.getmodules()
+                this.dialogFormVisible = false
+                this.$notify({
+                  title: '成功',
+                  message: '修改成功',
+                  type: 'success',
+                  duration: 2000
+                })
+              } else {
+                this.$notify({
+                  title: '失败',
+                  message: res.responseMsg,
+                  type: 'fail',
+                  duration: 2000
+                })
+              }
+            })
+          }
+        })
+      },
+      handleDelete() {
+        if (this.multipleSelection.length === 0) {
+          this.$message({
+            type: 'success',
+            message: '请选择一条数据!'
+          })
+          return
+        }
+        this.$confirm('永久删除, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let idsstr = ''
+          for (let i = 0; i < this.multipleSelection.length; i++) {
+            if (i === 0) {
+              idsstr += idsstr + this.multipleSelection[i].id
+            } else {
+              idsstr += ',' + this.multipleSelection[i].id
+            }
+          }
+          dodelete(idsstr).then((res) => {
+            if (res && res.responseCode === 100) {
+              this.getmodules()
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+            } else {
+              this.$notify({
+                title: '删除失败',
+                message: res.responseMsg,
+                type: 'fail',
+                duration: 2000
+              })
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
         })
       }
     }

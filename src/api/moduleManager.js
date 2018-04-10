@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 拉取系统列表
+// 获取所有系统列表树
 export function getsystems() {
   try {
     return request({
