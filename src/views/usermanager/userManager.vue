@@ -143,7 +143,6 @@
           <el-form-item :label="$t('userManager.department')" prop="departmentId">
             <el-select
               v-model="editModel.departmentId"
-              multiple
               filterable
               allow-create
               default-first-option
@@ -179,21 +178,6 @@
       Tree
     },
     data() {
-      var validatePass = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('请输入用户名'))
-        } else {
-          checkUserNameExsits(this.editModel).then((res) => {
-            this.isExit = res
-          })
-          this.$nextTick(() => {
-            if (this.isExit === 1) {
-              callback(new Error('用户名已存在'))
-            }
-            callback()
-          })
-        }
-      }
       return {
         add: null,
         read: null,
@@ -211,7 +195,7 @@
         },
         query: {
           pageIndex: 1,
-          pageSize: 20
+          pageSize: 10
         },
         multipleSelection: [],
         data: null,
@@ -243,9 +227,9 @@
         },
         systems: null,
         deptList: null,
-        isExit: null,
+        isExis: null,
         rules: {
-          username: [{ validator: validatePass, trigger: 'blur' }],
+          username: [{ required: true, message: 'username is required',trigger: 'blur' }],
           realName: [{ required: true, message: 'realName is required', trigger: 'blur' }],
           email: [{ required: true, message: 'email is required ', trigger: 'blur' }],
           systemIds: [{ required: true, message: 'systems is required ', trigger: 'blur' }],
@@ -300,6 +284,7 @@
         getDeptList().then((res) => {
           this.deptList = res
         })
+        // this.editModel.departmentId = []
       },
       fetchData() {
         this.listLoading = true
@@ -313,6 +298,7 @@
         getsystems().then(response => {
           this.systems = response
         })
+        this.editModel.systemIds = null
       },
       handleTreeClick(payload) {
         this.queryModel.departmentId = payload.node.id
@@ -349,7 +335,7 @@
           password: null,
           confirmPassword: null
         }
-        this.editModel.departmentId = this.queryModel.departmentId
+        // this.editModel.departmentId = this.queryModel.departmentId
       },
       handleCreate() {
         this.resetEditModel()
@@ -362,9 +348,9 @@
         })
       },
       handleUpdate(row) {
+        this.editModel = Object.assign({}, row) // copy obj
         this.getsystems()
         this.getDeptList()
-        this.editModel = Object.assign({}, row) // copy obj
         this.dialogStatus = 'update'
         this.editDialogFormVisible = true
         this.$nextTick(() => {
@@ -374,20 +360,33 @@
       createData() {
         this.$refs['editDataForm'].validate((valid) => {
           if (valid) {
-            insert(this.editModel).then((res) => {
-              if (res && res.responseCode === 100) {
-                this.fetchData()
-                this.editDialogFormVisible = false
-                this.$notify({
-                  title: '成功',
-                  message: '创建成功',
-                  type: 'success',
-                  duration: 2000
+            checkUserNameExsits(this.editModel).then((res) => {
+              if (res === 0) {
+                this.editModel.systemIds = this.editModel.systemIds.join(',')
+                this.editModel.departmentId = this.editModel.departmentId.join(',')
+                insert(this.editModel).then((res) => {
+                  if (res && res.responseCode === 100) {
+                    this.fetchData()
+                    this.editDialogFormVisible = false
+                    this.$notify({
+                      title: '成功',
+                      message: '创建成功',
+                      type: 'success',
+                      duration: 2000
+                    })
+                  } else {
+                    this.$notify({
+                      title: '失败',
+                      message: res.responseMsg,
+                      type: 'fail',
+                      duration: 2000
+                    })
+                  }
                 })
               } else {
                 this.$notify({
                   title: '失败',
-                  message: res.responseMsg,
+                  message: '用户名冲突！',
                   type: 'fail',
                   duration: 2000
                 })
