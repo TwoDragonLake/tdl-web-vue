@@ -31,6 +31,11 @@
           type="selection"
           width="55">
         </el-table-column>
+        <el-table-column label="操作" width="100">
+          <template slot-scope="scope">
+            <el-button type="primary" size="mini" v-if="edit" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
+          </template>
+        </el-table-column>
         <el-table-column align="center" label='username' width="95">
           <template slot-scope="scope">
             {{scope.row.username}}
@@ -71,11 +76,7 @@
             {{scope.row.deptName}}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-if="edit" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          </template>
-        </el-table-column>
+
       </el-table>
 
       <div class="pagination-container">
@@ -86,75 +87,108 @@
 
       <!--  人员添加/修改 -->
       <el-dialog :title="textMap[dialogStatus]" :visible.sync="editDialogFormVisible"  width="70%">
-        <el-form :rules="rules" ref="editDataForm" :model="editModel" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
+        <el-form :rules="rules" ref="editDataForm" :model="editModel" label-position="left" label-width="70px" style='width: 900px; margin-left:50px;'>
           <el-row>
             <el-col :span="12">
               <el-form-item :label="$t('userManager.username')" prop="username">
-                <el-input v-model="editModel.username"></el-input>
+                <el-input v-model="editModel.username" style="width: 350px;margin-left: 3%"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item :label="$t('userManager.realname')" prop="realName">
-                <el-input v-model="editModel.realName"></el-input>
+                <el-input v-model="editModel.realName" style="width: 350px;margin-left: 3%"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+          <el-col :span="12">
+            <el-form-item :label="$t('userManager.mobile')" >
+              <el-input v-model="editModel.mobile" style="width: 350px;margin-left: 3%"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('userManager.tel')" >
+              <el-input v-model="editModel.tel" style="width: 350px;margin-left: 3%"></el-input>
+            </el-form-item>
+          </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="12">
+              <el-form-item :label="$t('userManager.email')" prop="email">
+                <el-input v-model="editModel.email" style="width: 350px;margin-left: 3%"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('userManager.address')" >
+                <el-input v-model="editModel.address" style="width: 350px;margin-left: 3%"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="12">
+              <el-form-item :label="$t('userManager.systems')" prop="systemIds">
+                <el-select style="width: 350px;margin-left: 3%" value-key="id"
+                  v-model="editModel.systemIds"
+                  multiple
+                  filterable
+                  default-first-option
+                  placeholder="请选择">
+                  <el-option
+                    v-for="item in systems"
+                    :key="item.id"
+                    :label="item.text"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('userManager.sex')" prop="sex">
+                <el-radio v-model="editModel.sex" label="1">女</el-radio>
+                <el-radio v-model="editModel.sex" label="0">男</el-radio>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="12">
+              <el-form-item :label="$t('userManager.phone')" >
+                <el-input v-model="editModel.phone" style="width: 350px;margin-left: 3%"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('userManager.fax')" >
+                <el-input v-model="editModel.fax" style="width: 350px;margin-left: 3%"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
 
 
+          <el-row>
+            <el-col :span="12">
+              <el-form-item :label="$t('userManager.department')" prop="departmentId">
+                <el-select style="width: 350px;margin-left: 3%"
+                  v-model="editModel.departmentId"
+                  filterable
+                  allow-create
+                  default-first-option
+                  placeholder="请选择">
+                  <el-option
+                    v-for="item in deptList"
+                    :key="item.id"
+                    :label="item.text"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
 
-          <el-form-item :label="$t('userManager.mobile')" >
-            <el-input v-model="editModel.mobile"></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('userManager.phone')" >
-            <el-input v-model="editModel.phone"></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('userManager.email')" prop="email">
-            <el-input v-model="editModel.email"></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('userManager.address')" >
-            <el-input v-model="editModel.address"></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('userManager.systems')" prop="systemIds">
-            <el-select
-              v-model="editModel.systemIds"
-              multiple
-              filterable
-              allow-create
-              default-first-option
-              placeholder="请选择">
-              <el-option
-                v-for="item in systems"
-                :key="item.id"
-                :label="item.text"
-                :value="item.id">
-              </el-option>
-            </el-select>
-          </el-form-item>
-
-          <el-form-item :label="$t('userManager.sex')" prop="sex">
-            <el-input v-model="editModel.sex"></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('userManager.phone')" >
-            <el-input v-model="editModel.phone"></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('userManager.fax')" >
-            <el-input v-model="editModel.fax"></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('userManager.department')" prop="departmentId">
-            <el-select
-              v-model="editModel.departmentId"
-              filterable
-              allow-create
-              default-first-option
-              placeholder="请选择">
-              <el-option
-                v-for="item in deptList"
-                :key="item.id"
-                :label="item.text"
-                :value="item.id">
-              </el-option>
-            </el-select>
-          </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="editDialogFormVisible = false">Cancle</el-button>
@@ -229,7 +263,7 @@
         deptList: null,
         isExis: null,
         rules: {
-          username: [{ required: true, message: 'username is required',trigger: 'blur' }],
+          username: [{ required: true, message: 'username is required', trigger: 'blur' }],
           realName: [{ required: true, message: 'realName is required', trigger: 'blur' }],
           email: [{ required: true, message: 'email is required ', trigger: 'blur' }],
           systemIds: [{ required: true, message: 'systems is required ', trigger: 'blur' }],
@@ -280,12 +314,6 @@
           this.fetchData()
         })
       },
-      getDeptList() {
-        getDeptList().then((res) => {
-          this.deptList = res
-        })
-        // this.editModel.departmentId = []
-      },
       fetchData() {
         this.listLoading = true
         fetchData(this.queryModel, this.query).then((res) => {
@@ -298,7 +326,12 @@
         getsystems().then(response => {
           this.systems = response
         })
-        this.editModel.systemIds = null
+      },
+      getDeptList() {
+        getDeptList().then((res) => {
+          this.deptList = res
+        })
+        // this.editModel.departmentId = []
       },
       handleTreeClick(payload) {
         this.queryModel.departmentId = payload.node.id
@@ -327,7 +360,7 @@
           tel: null,
           email: null,
           address: null,
-          systemIds: null,
+          systemIds: [],
           sex: null,
           phone: null,
           fax: null,
@@ -349,6 +382,7 @@
       },
       handleUpdate(row) {
         this.editModel = Object.assign({}, row) // copy obj
+        this.editModel.systemIds = row.systemIdArr
         this.getsystems()
         this.getDeptList()
         this.dialogStatus = 'update'
@@ -356,14 +390,24 @@
         this.$nextTick(() => {
           this.$refs['editDataForm'].clearValidate()
         })
+        console.log(this.editModel.systemIds)
       },
       createData() {
+        console.log(this.editModel.systemIds)
         this.$refs['editDataForm'].validate((valid) => {
           if (valid) {
             checkUserNameExsits(this.editModel).then((res) => {
               if (res === 0) {
+                /* let idsstr = ''
+                console.log(this.editModel.systemIds)
+                for (let i = 0; i < this.editModel.systemIds.length; i++) {
+                  if (i === 0) {
+                    idsstr += idsstr + this.editModel.systemIds[i]
+                  } else {
+                    idsstr += ',' + this.editModel.systemIds[i]
+                  }
+                }*/
                 this.editModel.systemIds = this.editModel.systemIds.join(',')
-                this.editModel.departmentId = this.editModel.departmentId.join(',')
                 insert(this.editModel).then((res) => {
                   if (res && res.responseCode === 100) {
                     this.fetchData()
@@ -398,6 +442,16 @@
       updateData() {
         this.$refs['editDataForm'].validate((valid) => {
           if (valid) {
+            console.log(this.editModel.systemIds)
+            /* let idsstr = ''
+            for (let i = 0; i < this.editModel.systemIds.length; i++) {
+              if (i === 0) {
+                idsstr += idsstr + this.editModel.systemIds[i]
+              } else {
+                idsstr += ',' + this.editModel.systemIds[i]
+              }
+            }*/
+            this.editModel.systemIds = this.editModel.systemIds.join(',')
             update(this.editModel).then((res) => {
               if (res && res.responseCode === 100) {
                 this.fetchData()
