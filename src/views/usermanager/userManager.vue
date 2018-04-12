@@ -130,7 +130,7 @@
           <el-row>
             <el-col :span="12">
               <el-form-item :label="$t('userManager.systems')" prop="systemIds">
-                <el-select style="width: 350px;margin-left: 3%" value-key="id"
+                <el-select style="width: 350px;margin-left: 3%" value-key="id" @change="handleSystemsChange" @remove-tag="handleSystemsRemoveChange"
                   v-model="editModel.systemIds"
                   multiple
                   filterable
@@ -170,7 +170,7 @@
           <el-row>
             <el-col :span="12">
               <el-form-item :label="$t('userManager.department')" prop="departmentId">
-                <el-select style="width: 350px;margin-left: 3%"
+                <el-select style="width: 350px;margin-left: 3%" value-key="id"
                   v-model="editModel.departmentId"
                   filterable
                   allow-create
@@ -379,6 +379,12 @@
         this.$nextTick(() => {
           this.$refs['editDataForm'].clearValidate()
         })
+      },
+      handleSystemsChange(selectedValue) {
+        console.log(selectedValue)
+      },
+      handleSystemsRemoveChange(selectedValue) {
+        console.log(selectedValue)
       },
       handleUpdate(row) {
         this.editModel = Object.assign({}, row) // copy obj
