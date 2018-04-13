@@ -18,7 +18,6 @@ service.interceptors.request.use(config => {
   //  config.headers['Content-Type'] = 'multipart/form-data'
   // config.headers['Content-Type'] = 'application/json'
   var sessionId = getToken()
-  console.log(sessionId)
   if (config.method === 'post') {
     //  config.data.sessionId = sessionId
     config.data = qs.stringify({

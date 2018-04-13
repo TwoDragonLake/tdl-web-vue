@@ -9,7 +9,7 @@
         <el-button type="primary" v-if="del" @click="handleDelete" icon="el-icon-delete"></el-button>
         <el-button type="primary" v-if="read" icon="el-icon-info">查看详情</el-button>
         <el-button type="primary" v-if="edit" icon="el-icon-setting">分配角色</el-button>
-        <el-button type="primary" v-if="acl" icon="el-icon-setting">操作授权</el-button>
+        <el-button type="primary" v-if="acl" @click="handleAccessAcl"  icon="el-icon-setting">操作授权</el-button>
         <el-button type="primary" v-if="edit" icon="el-icon-view">修改密码</el-button>
       </div>
       <hr>
@@ -26,7 +26,7 @@
           <el-col :span="1"> <el-button type="primary" @click="fetchData" icon="el-icon-search"></el-button></el-col>
         </el-row>
       </div>
-      <el-table :data="data" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
+      <el-table :data="data" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row @selection-change="handleSelectionChange">
         <el-table-column
           type="selection"
           width="55">
@@ -130,7 +130,7 @@
           <el-row>
             <el-col :span="12">
               <el-form-item :label="$t('userManager.systems')" prop="systemIds">
-                <el-select style="width: 350px;margin-left: 3%" value-key="id" @change="handleSystemsChange" @remove-tag="handleSystemsRemoveChange"
+                <el-select style="width: 350px;margin-left: 3%" value-key="id"
                   v-model="editModel.systemIds"
                   multiple
                   filterable
@@ -146,9 +146,11 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item :label="$t('userManager.sex')" prop="sex">
-                <el-radio v-model="editModel.sex" label="1">女</el-radio>
-                <el-radio v-model="editModel.sex" label="0">男</el-radio>
+              <el-form-item >
+                <el-radio-group v-model="editModel.sex" :label="$t('userManager.sex')" prop="sex">
+                  <el-radio :label="1">女</el-radio>
+                  <el-radio :label="0">男</el-radio>
+                </el-radio-group>
               </el-form-item>
             </el-col>
           </el-row>
@@ -197,22 +199,51 @@
         </div>
       </el-dialog>
 
+      <!-- 授权 -->
+      <el-dialog :title="textMap[privDialogStatus]" :visible.sync="privEditDialogFormVisible"  width="70%">
+        <el-row>
+          <el-col :span="5">
+            <Tree :datas="privModel.privSystems" @node-click="handlePrivSystemsClick"></Tree>
+          </el-col>
+          <el-col :span="18">
+            <tree-table :data="privModel.modules" :evalFunc="func" :evalArgs="args" :expandAll="expandAll">
+              <el-table-column align="center" label='名称' width="100">
+                <template slot-scope="scope">
+                  {{scope.row.name}}
+                </template>
+              </el-table-column>
+              <el-table-column align="center" label='权限值' width="450">
+                <template slot-scope="scope">
+                  <el-checkbox-group v-model="scope.row.checkedPvs">
+                    <el-checkbox  v-for="item in scope.row.pvs"  :checked="item.flag" :key="item.id"   :label="item.id"  @change="singleAclChange(item.position)">{{item.name}}</el-checkbox>
+                  </el-checkbox-group>
+                </template>
+              </el-table-column>
+            </tree-table>
+          </el-col>
+        </el-row>
+      </el-dialog>
+
+
     </div>
   </div>
 </template>
 
 <script>
   import { Tree } from '@/views/usermanager/index'
+  import treeTable from '@/components/TreeTable'
+  import treeToArray from './customEval'
   import { getDeptTree, getDeptList } from '@/api/departmentManager'
-  import { getsystems } from '@/api/moduleManager'
+  import { getsystems, getmodules } from '@/api/moduleManager'
   import { fetchData, insert, update, dodelete, checkUserNameExsits/*, getRoles, saveUserRole, getAllPriValBySystemSn, setAcl, setAclByModule, setAllAcl, updatePassowrd*/ } from '@/api/userMananger'
   export default {
     name: 'UserManager',
     components: {
-      Tree
+      Tree, treeTable
     },
     data() {
       return {
+        func: treeToArray,
         add: null,
         read: null,
         del: null,
@@ -243,6 +274,8 @@
         },
         dialogStatus: null,
         editDialogFormVisible: false,
+        privDialogStatus: null,
+        privEditDialogFormVisible: false,
         editModel: {
           id: null,
           username: null,
@@ -251,7 +284,7 @@
           tel: null,
           email: null,
           address: null,
-          systemIds: null,
+          systemIds: [],
           sex: null,
           phone: null,
           fax: null,
@@ -271,10 +304,12 @@
           departmentId: [{ required: true, message: 'department is required', trigger: 'blur' }]
         },
         privModel: {
-          systems: null,
-          privs: null,
-          selectedPrivs: []
+          selectedSystemId: null,
+          privSystems: null,
+          modules: []
         },
+        args: [null, null],
+        expandAll: false,
         roleModel: {
           query: {
             name: null,
@@ -327,6 +362,16 @@
           this.systems = response
         })
       },
+      getprivSystems() {
+        getsystems().then(response => {
+          this.privModel.privSystems = response
+          if (this.privModel.privSystems && this.privModel.privSystems.length > 0) {
+            this.$nextTick(() => {
+              this.getModules(this.privModel.privSystems[0].id)
+            })
+          }
+        })
+      },
       getDeptList() {
         getDeptList().then((res) => {
           this.deptList = res
@@ -338,6 +383,37 @@
         this.$nextTick(() => {
           this.fetchData()
         })
+      },
+      // action accessacl dialog
+      handleAccessAcl() {
+        console.log(this.multipleSelection)
+        if (this.multipleSelection.length === 0) {
+          this.$message({
+            type: 'success',
+            message: '请选择一条数据!'
+          })
+          return
+        }
+        this.privDialogStatus = 'acl'
+        this.privEditDialogFormVisible = true
+        // load priDialog left system list
+        this.getprivSystems()
+      },
+      // action click system, then load system`s module list
+      handlePrivSystemsClick(payload) {
+        this.privModel.selectedSystemId = payload.node.id
+        this.$nextTick(() => {
+          this.getModules(this.privModel.selectedSystemId)
+        })
+      },
+      // load system`s modules
+      getModules(systemId) {
+        getmodules({ pageIndex: 1, pageSize: 20000 }, { systemId: systemId }).then((res) => {
+          this.privModel.modules = res
+        })
+      },
+      singleAclChange(afterValue) {
+        console.log(afterValue)
       },
       handleCurrentChange(val) {
         this.query.pageIndex = val
@@ -370,6 +446,9 @@
         }
         // this.editModel.departmentId = this.queryModel.departmentId
       },
+      handleSelectionChange(val) {
+        this.multipleSelection = val
+      },
       handleCreate() {
         this.resetEditModel()
         this.getsystems()
@@ -380,15 +459,23 @@
           this.$refs['editDataForm'].clearValidate()
         })
       },
-      handleSystemsChange(selectedValue) {
-        console.log(selectedValue)
-      },
-      handleSystemsRemoveChange(selectedValue) {
-        console.log(selectedValue)
-      },
       handleUpdate(row) {
-        this.editModel = Object.assign({}, row) // copy obj
+        this.editModel.id = row.id
+        this.editModel.username = row.username
+        this.editModel.realName = row.realName
+        this.editModel.mobile = row.mobile
+        this.editModel.tel = row.tel
+        this.editModel.email = row.email
+        this.editModel.address = row.address
         this.editModel.systemIds = row.systemIdArr
+        this.editModel.sex = row.sex
+        this.editModel.phone = row.phone
+        this.editModel.fax = row.fax
+        this.editModel.departmentId = row.departmentId
+        // this.editModel = Object.assign({}, row) // copy obj
+        // this.editModel = JSON.parse(JSON.stringify(row))
+        // this.editModel.systemIds = JSON.parse(JSON.stringify(this.editModel.systemIdArr))
+        // console.log(Object.assign({}, row))
         this.getsystems()
         this.getDeptList()
         this.dialogStatus = 'update'
@@ -396,7 +483,7 @@
         this.$nextTick(() => {
           this.$refs['editDataForm'].clearValidate()
         })
-        console.log(this.editModel.systemIds)
+        // console.log(this.editModel)
       },
       createData() {
         console.log(this.editModel.systemIds)

@@ -27,7 +27,7 @@
           </el-table-column>
           <el-table-column label="State" width="300" align="center">
             <template  slot-scope="scope">
-              <el-tag v-if="edit" v-for="pv in scope.row.pvs"  :key="pv" closable  :disable-transitions="false" @close="handleDeletePvs(pv)">
+              <el-tag v-if="edit" v-for="pv in scope.row.pvs"  :key="pv.id" closable  :disable-transitions="false" @close="handleDeletePvs(pv)">
                 {{pv.name}}
               </el-tag>
             </template>
@@ -85,7 +85,7 @@
     <el-dialog :title="textMap[privDialogStatus]" :visible.sync="privDialogFormVisible"  width="40%">
       <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll"  @change="handleCheckAllChange">全选</el-checkbox>
       <el-checkbox-group v-model="privCheckList" @change="handleCheckedPriChange">
-        <el-checkbox v-for="priv in privList"  :key="priv"  :label="priv.position">{{priv.name}}</el-checkbox>
+        <el-checkbox v-for="priv in privList"  :key="priv.id"  :label="priv.position">{{priv.name}}</el-checkbox>
       </el-checkbox-group>
       <div slot="footer" class="dialog-footer">
         <el-button @click="privDialogFormVisible = false">Cancle</el-button>
@@ -102,7 +102,7 @@
   import { Tree } from '@/views/modulemanager/index'
   import { getsystems, getmodules, insert, update, dodelete, deletePriVal, getAllPriVal, insertPriVal } from '@/api/moduleManager'
   export default {
-    name: 'customTreeTableDemo',
+    name: 'ModuleManager',
     components: { Tree, treeTable },
     data() {
       return {
@@ -192,20 +192,20 @@
       handleTreeClick(payload) {
         this.model.systemId = payload.node.id
         this.$nextTick(() => {
-          this.getmodules()
+          this.getModules()
         })
         //  console.log(payload.node)
       },
       handleCurrentChange(val) {
         this.query.pageIndex = val
         this.$nextTick(() => {
-          this.getmodules()
+          this.getModules()
         })
       },
       handleSizeChange(val) {
         this.query.pageSize = val
         this.$nextTick(() => {
-          this.getmodules()
+          this.getModules()
         })
       },
       handleDeletePvs(pv) {
@@ -216,7 +216,7 @@
         }).then((res) => {
           deletePriVal(pv.id, pv.moduleId).then((res) => {
             if (res && res.responseCode === 100) {
-              this.getmodules()
+              this.getModules()
               this.dialogFormVisible = false
               this.$notify({
                 title: '成功',
@@ -240,7 +240,7 @@
           })
         })
       },
-      getmodules() {
+      getModules() {
         getmodules(this.query, this.model).then((res) => {
           this.data = res
         })
@@ -280,7 +280,7 @@
           if (valid) {
             insert(this.temp).then((res) => {
               if (res && res.responseCode === 100) {
-                this.getmodules()
+                this.getModules()
                 this.dialogFormVisible = false
                 this.$notify({
                   title: '成功',
@@ -305,7 +305,7 @@
           if (valid) {
             update(this.temp).then((res) => {
               if (res && res.responseCode === 100) {
-                this.getmodules()
+                this.getModules()
                 this.dialogFormVisible = false
                 this.$notify({
                   title: '成功',
@@ -348,7 +348,7 @@
           }
           dodelete(idsstr).then((res) => {
             if (res && res.responseCode === 100) {
-              this.getmodules()
+              this.getModules()
               this.$message({
                 type: 'success',
                 message: '删除成功!'
@@ -390,7 +390,7 @@
         }
         insertPriVal(this.privCheckList.join(','), this.multipleSelection[0].id).then((res) => {
           if (res && res.responseCode === 100) {
-            this.getmodules()
+            this.getModules()
             this.$message({
               type: 'success',
               message: '设置成功!'
