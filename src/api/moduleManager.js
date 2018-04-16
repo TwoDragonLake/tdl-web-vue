@@ -30,6 +30,32 @@ export function getmodules(query, module) {
     // request.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
   }
 }
+
+// getAllPriValBySystemSn
+/*
+     * 得到系统所有的模块和模块值，当然的也做了每个权限值是否勾选判断
+     * @param systemSn  系统标识
+     * @param type      role或者user
+     * @param releaseId roleId或者userId
+ */
+export function getAllPriValBySystemSn(systemSn, type, releaseId) {
+  try {
+    return request({
+      url: '/managment/privilege/module/getAll.do',
+      method: 'post',
+      data: {
+        systemSn: systemSn,
+        type: type,
+        releaseId: releaseId
+      }
+    })
+  } catch (err) {
+    console.log(err)
+  } finally {
+    // request.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
+  }
+}
+
 // 插入模块
 export function insert(module) {
   return request({

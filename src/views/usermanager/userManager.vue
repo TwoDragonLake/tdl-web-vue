@@ -206,6 +206,7 @@
             <Tree :datas="privModel.privSystems" @node-click="handlePrivSystemsClick"></Tree>
           </el-col>
           <el-col :span="18">
+            <el-checkbox label="全选" :checked="privModel.selectedAllModule" @change="setAllAcl($event)"></el-checkbox>
             <tree-table :data="privModel.modules" :evalFunc="func" :evalArgs="args" :expandAll="expandAll">
               <el-table-column align="center" label='名称' width="100">
                 <template slot-scope="scope">
@@ -214,14 +215,20 @@
               </el-table-column>
               <el-table-column align="center" label='权限值' width="450">
                 <template slot-scope="scope">
-                  <el-checkbox-group v-model="scope.row.checkedPvs">
-                    <el-checkbox  v-for="item in scope.row.pvs"  :checked="item.flag" :key="item.id"   :label="item.id"  @change="singleAclChange(item.position)">{{item.name}}</el-checkbox>
+                  <el-checkbox-group v-model="scope.row.selectedPvs"  @change="groupAclChange" >
+                    <el-checkbox label="全选"   :checked="scope.row.hasAllPvs"  @change="setAclByModule(scope.row.id, $event)"></el-checkbox>
+                    <el-checkbox  v-for="item in scope.row.pvs"  :checked="item.flag" :key="item.id"
+                                  :label="item.id"    @change="setAcl(scope.row.id, scope.row.sn, item.position,$event)">
+                      {{item.name}}</el-checkbox>
                   </el-checkbox-group>
                 </template>
               </el-table-column>
             </tree-table>
           </el-col>
         </el-row>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="privEditDialogFormVisible = false">Close</el-button>
+        </div>
       </el-dialog>
 
 
@@ -235,7 +242,7 @@
   import treeToArray from './customEval'
   import { getDeptTree, getDeptList } from '@/api/departmentManager'
   import { getsystems, getmodules } from '@/api/moduleManager'
-  import { fetchData, insert, update, dodelete, checkUserNameExsits/*, getRoles, saveUserRole, getAllPriValBySystemSn, setAcl, setAclByModule, setAllAcl, updatePassowrd*/ } from '@/api/userMananger'
+  import { fetchData, insert, update, dodelete, checkUserNameExsits, setAcl, setAclByModule, setAllAcl, getAllPriValBySystemSn /*, getRoles, saveUserRole, , updatePassowrd*/ } from '@/api/userMananger'
   export default {
     name: 'UserManager',
     components: {
@@ -305,7 +312,9 @@
         },
         privModel: {
           selectedSystemId: null,
+          selectedSystemSn: null,
           privSystems: null,
+          selectedAllModule: false,
           modules: []
         },
         args: [null, null],
@@ -402,8 +411,9 @@
       // action click system, then load system`s module list
       handlePrivSystemsClick(payload) {
         this.privModel.selectedSystemId = payload.node.id
+        this.privModel.selectedSystemSn = payload.node.sn
         this.$nextTick(() => {
-          this.getModules(this.privModel.selectedSystemId)
+          this.getAllPriValBySystemSn(this.privModel.selectedSystemSn, 'user', this.multipleSelection[0].id)
         })
       },
       // load system`s modules
@@ -412,7 +422,79 @@
           this.privModel.modules = res
         })
       },
-      singleAclChange(afterValue) {
+      getAllPriValBySystemSn(systemSn, type, releaseId) {
+        this.privModel.modules = []
+        getAllPriValBySystemSn(systemSn, type, releaseId).then((res) => {
+          this.privModel.modules = res
+          if (this.privModel.modules && this.privModel.modules.length > 0) {
+            let allModule = true
+            for (let i = 0; i < this.privModel.modules.length; i++) {
+              let module = this.privModel.modules[i]
+              if (!module.hasAllPvs){
+                allModule = false
+              }
+            }
+            this.privModel.selectedAllModule = allModule
+          }
+        })
+      },
+      setAcl(moduleId, moduleSn, position, event) {
+        /* console.log('moduleId: ' + moduleId)
+        console.log('moduleSn: ' + moduleSn)
+        console.log('selectedSystemSn: ' + this.privModel.selectedSystemSn)
+        console.log('position: ' + position)
+        console.log('yes: ' + event)*/
+        let acl = {
+          systemSn: this.privModel.selectedSystemSn,
+          moduleId: moduleId,
+          moduleSn: moduleSn,
+          releaseId: this.multipleSelection[0].id,
+          releaseSn: 'user'
+        }
+        console.log('--setAcl--')
+        console.log(acl)
+        console.log('yes : ' + event)
+        setAcl(acl, position, event).then(() => {
+          this.privModel.modules = []
+          this.$nextTick(() => {
+            this.getAllPriValBySystemSn(this.privModel.selectedSystemSn, 'user', this.multipleSelection[0].id)
+          })
+        })
+      },
+      setAclByModule(moduleId, event) {
+        let acl = {
+          systemSn: this.privModel.selectedSystemSn,
+          moduleId: moduleId,
+          releaseId: this.multipleSelection[0].id,
+          releaseSn: 'user'
+        }
+        console.log('--setAclByModule--')
+        console.log(acl)
+        console.log('yes : ' + event)
+        setAclByModule(acl, event).then(() => {
+          this.privModel.modules = []
+          this.$nextTick(() => {
+            this.getAllPriValBySystemSn(this.privModel.selectedSystemSn, 'user', this.multipleSelection[0].id)
+          })
+        })
+      },
+      setAllAcl(event) {
+        let acl = {
+          systemSn: this.privModel.selectedSystemSn,
+          releaseId: this.multipleSelection[0].id,
+          releaseSn: 'user'
+        }
+        console.log('--setAllAcl--')
+        console.log(acl)
+        console.log('yes : ' + event)
+        setAllAcl(acl, event).then(() => {
+          this.privModel.modules = []
+          this.$nextTick(() => {
+            this.getAllPriValBySystemSn(this.privModel.selectedSystemSn, 'user', this.multipleSelection[0].id)
+          })
+        })
+      },
+      groupAclChange(afterValue) {
         console.log(afterValue)
       },
       handleCurrentChange(val) {

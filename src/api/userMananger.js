@@ -99,7 +99,7 @@ export function setAcl(acl, position, yes) {
     url: '/managment/privilege/acl/setAcl.do',
     method: 'post',
     data: {
-      acl: acl,
+      acl: JSON.stringify(acl),
       position: position,
       yes: yes
     }
@@ -112,7 +112,7 @@ export function setAclByModule(acl, yes) {
     url: '/managment/privilege/acl/setAclByModule.do',
     method: 'post',
     data: {
-      acl: acl,
+      acl: JSON.stringify(acl),
       yes: yes
     }
   })
@@ -124,7 +124,7 @@ export function setAllAcl(acl, yes) {
     url: '/managment/privilege/acl/setAllAcl.do',
     method: 'post',
     data: {
-      acl: acl,
+      acl: JSON.stringify(acl),
       yes: yes
     }
   })
