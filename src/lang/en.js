@@ -153,6 +153,9 @@ export default {
     sex: 'sex',
     phone: 'phone',
     fax: 'fax',
-    department: 'department'
+    department: 'department',
+    roleName: 'RoleName',
+    RoleSn: 'RoleSn',
+    RoleReamrk: 'Remark'
   }
 }

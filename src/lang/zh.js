@@ -153,6 +153,9 @@ export default {
     sex: '性别',
     phone: '座机',
     fax: '传真',
-    department: '部门'
+    department: '部门',
+    roleName: '角色名称',
+    RoleSn: '角色标示',
+    RoleReamrk: '备注'
   }
 }

@@ -8,7 +8,7 @@
         <el-button type="primary" v-if="add" @click="handleCreate" icon="el-icon-plus"></el-button>
         <el-button type="primary" v-if="del" @click="handleDelete" icon="el-icon-delete"></el-button>
         <el-button type="primary" v-if="read" icon="el-icon-info">查看详情</el-button>
-        <el-button type="primary" v-if="edit" icon="el-icon-setting">分配角色</el-button>
+        <el-button type="primary" v-if="edit" @click="handleSetRole" icon="el-icon-setting">分配角色</el-button>
         <el-button type="primary" v-if="acl" @click="handleAccessAcl"  icon="el-icon-setting">操作授权</el-button>
         <el-button type="primary" v-if="edit" icon="el-icon-view">修改密码</el-button>
       </div>
@@ -231,6 +231,41 @@
         </div>
       </el-dialog>
 
+      <el-dialog :title="textMap[privDialogStatus]" :visible.sync="roleEditDialogFormVisible"  width="30%">
+        <el-table :data="roleModel.roleList" ref="roleMultipleTable"  border fit highlight-current-row @selection-change="handleRoleListSelected">
+          <el-table-column
+            type="selection"
+            width="55">
+          </el-table-column>
+
+          <el-table-column :label="$t('userManager.roleName')" width="100" align="center">
+            <template slot-scope="scope">
+              {{scope.row.name}}
+            </template>
+          </el-table-column>
+
+          <el-table-column :label="$t('userManager.roleName')" width="100" align="center">
+            <template slot-scope="scope">
+              {{scope.row.sn}}
+            </template>
+          </el-table-column>
+
+          <el-table-column :label="$t('userManager.RoleReamrk')" width="100" align="center">
+            <template slot-scope="scope">
+              {{scope.row.note}}
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="pagination-container">
+          <el-pagination background @size-change="handleRoleSizeChange" @current-change="handleRoleCurrentChange" :current-page="roleModel.query.pageIndex"
+                         :page-sizes="[20,30, 50]" :page-size="query.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+          </el-pagination>
+        </div>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="roleEditDialogFormVisible = false">Cancle</el-button>
+          <el-button type="primary"   @click="saveUserRole">Save</el-button>
+        </div>
+      </el-dialog>
 
     </div>
   </div>
@@ -242,7 +277,7 @@
   import treeToArray from './customEval'
   import { getDeptTree, getDeptList } from '@/api/departmentManager'
   import { getsystems, getmodules } from '@/api/moduleManager'
-  import { fetchData, insert, update, dodelete, checkUserNameExsits, setAcl, setAclByModule, setAllAcl, getAllPriValBySystemSn /*, getRoles, saveUserRole, , updatePassowrd*/ } from '@/api/userMananger'
+  import { fetchData, insert, update, dodelete, checkUserNameExsits, setAcl, setAclByModule, setAllAcl, getAllPriValBySystemSn, getRoles, saveUserRole /*, , , , updatePassowrd*/ } from '@/api/userMananger'
   export default {
     name: 'UserManager',
     components: {
@@ -283,6 +318,7 @@
         editDialogFormVisible: false,
         privDialogStatus: null,
         privEditDialogFormVisible: false,
+        roleEditDialogFormVisible: false,
         editModel: {
           id: null,
           username: null,
@@ -320,10 +356,14 @@
         args: [null, null],
         expandAll: false,
         roleModel: {
-          query: {
+          user: {
             name: null,
             sn: null,
             userId: null
+          },
+          query: {
+            pageIndex: 1,
+            pageSize: 20
           },
           roleList: null,
           selectedRoles: []
@@ -395,7 +435,6 @@
       },
       // action accessacl dialog
       handleAccessAcl() {
-        console.log(this.multipleSelection)
         if (this.multipleSelection.length === 0) {
           this.$message({
             type: 'success',
@@ -405,8 +444,74 @@
         }
         this.privDialogStatus = 'acl'
         this.privEditDialogFormVisible = true
-        // load priDialog left system list
         this.getprivSystems()
+      },
+      // set role dialog
+      handleSetRole() {
+        if (this.multipleSelection.length === 0) {
+          this.$message({
+            type: 'success',
+            message: '请选择一条数据!'
+          })
+          return
+        }
+        this.privDialogStatus = 'role'
+        this.roleEditDialogFormVisible = true
+        this.doGetRoles(this.multipleSelection[0].id)
+      },
+      doGetRoles(userid) {
+        this.roleModel.roleList = []
+        // this.roleModel.selectedRoles = []
+        console.log(this.roleModel.user)
+        console.log(this.roleModel.query)
+        getRoles(userid, this.roleModel.user, this.roleModel.query).then((res) => {
+          this.$nextTick(() => {
+            this.roleModel.roleList = res.datas
+            this.$nextTick(() => {
+              if (this.roleModel.roleList.length > 0) {
+                for (let i = 0; i < this.roleModel.roleList.length; i++) {
+                  if (this.roleModel.roleList[i].checked) {
+                    this.$refs.roleMultipleTable.toggleRowSelection(this.roleModel.roleList[i], true)
+                  }
+                }
+              }
+            })
+          })
+        })
+      },
+      saveUserRole() {
+        let roleIds = ''
+        if (this.roleModel.selectedRoles.length > 0) {
+          for (let i = 0; i < this.roleModel.selectedRoles.length; i++) {
+            if (i === 0) {
+              roleIds += roleIds + this.roleModel.selectedRoles[i].id
+            } else {
+              roleIds += ',' + this.roleModel.selectedRoles[i].id
+            }
+          }
+        }
+        saveUserRole(this.multipleSelection[0].id, roleIds).then((res) => {
+          if (res && res.responseCode === 100) {
+            this.fetchData()
+            this.roleEditDialogFormVisible = false
+            this.$notify({
+              title: '成功',
+              message: '保存成功',
+              type: 'success',
+              duration: 2000
+            })
+          } else {
+            this.$notify({
+              title: '失败',
+              message: res.responseMsg,
+              type: 'fail',
+              duration: 2000
+            })
+          }
+        })
+      },
+      handleRoleListSelected(val) {
+        this.roleModel.selectedRoles = val
       },
       // action click system, then load system`s module list
       handlePrivSystemsClick(payload) {
@@ -416,6 +521,7 @@
           this.getAllPriValBySystemSn(this.privModel.selectedSystemSn, 'user', this.multipleSelection[0].id)
         })
       },
+
       // load system`s modules
       getModules(systemId) {
         getmodules({ pageIndex: 1, pageSize: 20000 }, { systemId: systemId }).then((res) => {
@@ -439,11 +545,6 @@
         })
       },
       setAcl(moduleId, moduleSn, position, event) {
-        /* console.log('moduleId: ' + moduleId)
-        console.log('moduleSn: ' + moduleSn)
-        console.log('selectedSystemSn: ' + this.privModel.selectedSystemSn)
-        console.log('position: ' + position)
-        console.log('yes: ' + event)*/
         let acl = {
           systemSn: this.privModel.selectedSystemSn,
           moduleId: moduleId,
@@ -451,9 +552,6 @@
           releaseId: this.multipleSelection[0].id,
           releaseSn: 'user'
         }
-        console.log('--setAcl--')
-        console.log(acl)
-        console.log('yes : ' + event)
         setAcl(acl, position, event).then(() => {
           this.privModel.modules = []
           this.$nextTick(() => {
@@ -462,15 +560,12 @@
         })
       },
       setAclByModule(moduleId, event) {
-        let acl = {
+        const acl = {
           systemSn: this.privModel.selectedSystemSn,
           moduleId: moduleId,
           releaseId: this.multipleSelection[0].id,
           releaseSn: 'user'
         }
-        console.log('--setAclByModule--')
-        console.log(acl)
-        console.log('yes : ' + event)
         setAclByModule(acl, event).then(() => {
           this.privModel.modules = []
           this.$nextTick(() => {
@@ -479,23 +574,17 @@
         })
       },
       setAllAcl(event) {
-        let acl = {
+        const acl = {
           systemSn: this.privModel.selectedSystemSn,
           releaseId: this.multipleSelection[0].id,
           releaseSn: 'user'
         }
-        console.log('--setAllAcl--')
-        console.log(acl)
-        console.log('yes : ' + event)
         setAllAcl(acl, event).then(() => {
           this.privModel.modules = []
           this.$nextTick(() => {
             this.getAllPriValBySystemSn(this.privModel.selectedSystemSn, 'user', this.multipleSelection[0].id)
           })
         })
-      },
-      groupAclChange(afterValue) {
-        console.log(afterValue)
       },
       handleCurrentChange(val) {
         this.query.pageIndex = val
@@ -504,9 +593,22 @@
         })
       },
       handleSizeChange(val) {
-        this.query.pageSize = val
+        this.roleModel.query.pageSize = val
         this.$nextTick(() => {
           this.fetchData()
+        })
+      },
+      // set role dialog pagenination
+      handleRoleCurrentChange(val) {
+        this.roleModel.query.pageIndex = val
+        this.$nextTick(() => {
+          this.getRoles(this.multipleSelection[0].id)
+        })
+      },
+      handleRoleSizeChange(val) {
+        this.roleModel.query.pageSize = val
+        this.$nextTick(() => {
+          this.getRoles(this.multipleSelection[0].id)
         })
       },
       resetEditModel() {
@@ -526,7 +628,6 @@
           password: null,
           confirmPassword: null
         }
-        // this.editModel.departmentId = this.queryModel.departmentId
       },
       handleSelectionChange(val) {
         this.multipleSelection = val
@@ -554,10 +655,6 @@
         this.editModel.phone = row.phone
         this.editModel.fax = row.fax
         this.editModel.departmentId = row.departmentId
-        // this.editModel = Object.assign({}, row) // copy obj
-        // this.editModel = JSON.parse(JSON.stringify(row))
-        // this.editModel.systemIds = JSON.parse(JSON.stringify(this.editModel.systemIdArr))
-        // console.log(Object.assign({}, row))
         this.getsystems()
         this.getDeptList()
         this.dialogStatus = 'update'
@@ -565,7 +662,6 @@
         this.$nextTick(() => {
           this.$refs['editDataForm'].clearValidate()
         })
-        // console.log(this.editModel)
       },
       createData() {
         console.log(this.editModel.systemIds)
@@ -573,15 +669,6 @@
           if (valid) {
             checkUserNameExsits(this.editModel).then((res) => {
               if (res === 0) {
-                /* let idsstr = ''
-                console.log(this.editModel.systemIds)
-                for (let i = 0; i < this.editModel.systemIds.length; i++) {
-                  if (i === 0) {
-                    idsstr += idsstr + this.editModel.systemIds[i]
-                  } else {
-                    idsstr += ',' + this.editModel.systemIds[i]
-                  }
-                }*/
                 this.editModel.systemIds = this.editModel.systemIds.join(',')
                 insert(this.editModel).then((res) => {
                   if (res && res.responseCode === 100) {
@@ -618,14 +705,6 @@
         this.$refs['editDataForm'].validate((valid) => {
           if (valid) {
             console.log(this.editModel.systemIds)
-            /* let idsstr = ''
-            for (let i = 0; i < this.editModel.systemIds.length; i++) {
-              if (i === 0) {
-                idsstr += idsstr + this.editModel.systemIds[i]
-              } else {
-                idsstr += ',' + this.editModel.systemIds[i]
-              }
-            }*/
             this.editModel.systemIds = this.editModel.systemIds.join(',')
             update(this.editModel).then((res) => {
               if (res && res.responseCode === 100) {

@@ -57,13 +57,13 @@ export function checkUserNameExsits(user) {
 }
 
 // 查询所有角色。标记用户已经拥有的角色
-export function getRoles(userId, user, query) {
+export function getRoles(userId, role, query) {
   return request({
     url: '/managment/privilege/user/getRoles.do',
     method: 'post',
     data: {
       userId: userId,
-      user: JSON.stringify(user),
+      role: JSON.stringify(role),
       query: JSON.stringify(query)
     }
   })
