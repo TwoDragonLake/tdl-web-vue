@@ -105,7 +105,8 @@ export default {
     draft: 'Draft',
     delete: 'Delete',
     cancel: 'Cancel',
-    confirm: 'Confirm'
+    confirm: 'Confirm',
+    view: 'view'
   },
   errorLog: {
     tips: 'Please click the bug icon in the upper right corner',
@@ -156,6 +157,7 @@ export default {
     department: 'department',
     roleName: 'RoleName',
     RoleSn: 'RoleSn',
-    RoleReamrk: 'Remark'
+    RoleReamrk: 'Remark',
+    password: 'password'
   }
 }

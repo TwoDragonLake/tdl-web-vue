@@ -105,7 +105,8 @@ export default {
     draft: '草稿',
     delete: '删除',
     cancel: '取 消',
-    confirm: '确 定'
+    confirm: '确 定',
+    view: '查 看'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
@@ -156,6 +157,7 @@ export default {
     department: '部门',
     roleName: '角色名称',
     RoleSn: '角色标示',
-    RoleReamrk: '备注'
+    RoleReamrk: '备注',
+    password: '密码'
   }
 }

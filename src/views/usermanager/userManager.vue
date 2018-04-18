@@ -10,7 +10,7 @@
         <el-button type="primary" v-if="read" icon="el-icon-info">查看详情</el-button>
         <el-button type="primary" v-if="edit" @click="handleSetRole" icon="el-icon-setting">分配角色</el-button>
         <el-button type="primary" v-if="acl" @click="handleAccessAcl"  icon="el-icon-setting">操作授权</el-button>
-        <el-button type="primary" v-if="edit" icon="el-icon-view">修改密码</el-button>
+        <el-button type="primary" v-if="edit" @click="handleUserPassword" icon="el-icon-view">修改密码</el-button>
       </div>
       <hr>
       <div >
@@ -31,9 +31,10 @@
           type="selection"
           width="55">
         </el-table-column>
-        <el-table-column label="操作" width="100">
+        <el-table-column label="操作" width="150">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="edit" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
+            <el-button type="primary" size="mini" v-if="edit" @click="handleView(scope.row)">{{$t('table.view')}}</el-button>
           </template>
         </el-table-column>
         <el-table-column align="center" label='username' width="95">
@@ -87,7 +88,7 @@
 
       <!--  人员添加/修改 -->
       <el-dialog :title="textMap[dialogStatus]" :visible.sync="editDialogFormVisible"  width="70%">
-        <el-form :rules="rules" ref="editDataForm" :model="editModel" label-position="left" label-width="70px" style='width: 900px; margin-left:50px;'>
+        <el-form :disabled="disabled" :rules="rules" ref="editDataForm" :model="editModel" label-position="left" label-width="70px" style='width: 900px; margin-left:50px;'>
           <el-row>
             <el-col :span="12">
               <el-form-item :label="$t('userManager.username')" prop="username">
@@ -163,7 +164,7 @@
             </el-col>
             <el-col :span="12">
               <el-form-item :label="$t('userManager.fax')" >
-                <el-input v-model="editModel.fax" style="width: 350px;margin-left: 3%"></el-input>
+                <el-input  v-model="editModel.fax" style="width: 350px;margin-left: 3%"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -194,8 +195,8 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="editDialogFormVisible = false">Cancle</el-button>
-          <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">confirm</el-button>
-          <el-button v-else type="primary" @click="updateData">confirm</el-button>
+          <el-button :disabled="disabled" v-if="dialogStatus=='create'" type="primary" @click="createData">confirm</el-button>
+          <el-button :disabled="disabled" v-else type="primary" @click="updateData">confirm</el-button>
         </div>
       </el-dialog>
 
@@ -267,6 +268,22 @@
         </div>
       </el-dialog>
 
+
+      <el-dialog :title="textMap[privDialogStatus]"  :visible.sync="passwdEditDialogFormVisible"  width="30%">
+        <el-form :rules="rules" ref="roleEditDataForm" :model="passwordModel" label-position="left" label-width="70px" style='width: 900px; margin-left:50px;'>
+          <el-form-item :rules="rules" :label="$t('userManager.username')" prop="username">
+            <el-input v-model="passwordModel.username" style="width: 200px;margin-left: 3%"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('userManager.password')" prop="password">
+            <el-input type="password"  v-model="passwordModel.password" style="width: 200px;margin-left: 3%"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="passwdEditDialogFormVisible = false">Cancle</el-button>
+          <el-button type="primary"   @click="saveUserPassword">Save</el-button>
+        </div>
+      </el-dialog>
+
     </div>
   </div>
 </template>
@@ -277,7 +294,7 @@
   import treeToArray from './customEval'
   import { getDeptTree, getDeptList } from '@/api/departmentManager'
   import { getsystems, getmodules } from '@/api/moduleManager'
-  import { fetchData, insert, update, dodelete, checkUserNameExsits, setAcl, setAclByModule, setAllAcl, getAllPriValBySystemSn, getRoles, saveUserRole /*, , , , updatePassowrd*/ } from '@/api/userMananger'
+  import { fetchData, insert, update, dodelete, checkUserNameExsits, setAcl, setAclByModule, setAllAcl, getAllPriValBySystemSn, getRoles, saveUserRole, updatePassowrd } from '@/api/userMananger'
   export default {
     name: 'UserManager',
     components: {
@@ -319,6 +336,7 @@
         privDialogStatus: null,
         privEditDialogFormVisible: false,
         roleEditDialogFormVisible: false,
+        passwdEditDialogFormVisible: false,
         editModel: {
           id: null,
           username: null,
@@ -335,6 +353,7 @@
           password: null,
           confirmPassword: null
         },
+        disabled: false,
         systems: null,
         deptList: null,
         isExis: null,
@@ -344,7 +363,8 @@
           email: [{ required: true, message: 'email is required ', trigger: 'blur' }],
           systemIds: [{ required: true, message: 'systems is required ', trigger: 'blur' }],
           sex: [{ required: true, message: 'sex is required', trigger: 'blur' }],
-          departmentId: [{ required: true, message: 'department is required', trigger: 'blur' }]
+          departmentId: [{ required: true, message: 'department is required', trigger: 'blur' }],
+          password: [{ required: true, message: 'password is required', trigger: 'blur' }]
         },
         privModel: {
           selectedSystemId: null,
@@ -367,6 +387,10 @@
           },
           roleList: null,
           selectedRoles: []
+        },
+        passwordModel: {
+          username: null,
+          password: null
         }
       }
     },
@@ -431,6 +455,43 @@
         this.queryModel.departmentId = payload.node.id
         this.$nextTick(() => {
           this.fetchData()
+        })
+      },
+      handleUserPassword() {
+        if (this.multipleSelection.length === 0) {
+          this.$message({
+            type: 'success',
+            message: '请选择一条数据!'
+          })
+          return
+        }
+        this.privDialogStatus = 'password'
+        this.passwdEditDialogFormVisible = true
+        this.passwordModel.username = this.multipleSelection[0].username
+      },
+      saveUserPassword() {
+        this.$refs['roleEditDataForm'].validate((valid) => {
+          if (valid) {
+            updatePassowrd(this.passwordModel).then((res) => {
+              if (res && res.responseCode === 100) {
+                // this.fetchData()
+                this.passwdEditDialogFormVisible = false
+                this.$notify({
+                  title: '成功',
+                  message: '修改成功',
+                  type: 'success',
+                  duration: 2000
+                })
+              } else {
+                this.$notify({
+                  title: '失败',
+                  message: res.responseMsg,
+                  type: 'fail',
+                  duration: 2000
+                })
+              }
+            })
+          }
         })
       },
       // action accessacl dialog
@@ -536,7 +597,7 @@
             let allModule = true
             for (let i = 0; i < this.privModel.modules.length; i++) {
               let module = this.privModel.modules[i]
-              if (!module.hasAllPvs){
+              if (!module.hasAllPvs) {
                 allModule = false
               }
             }
@@ -545,7 +606,7 @@
         })
       },
       setAcl(moduleId, moduleSn, position, event) {
-        let acl = {
+        const acl = {
           systemSn: this.privModel.selectedSystemSn,
           moduleId: moduleId,
           moduleSn: moduleSn,
@@ -638,11 +699,35 @@
         this.getDeptList()
         this.dialogStatus = 'create'
         this.editDialogFormVisible = true
+        this.disabled = false
+        this.$nextTick(() => {
+          this.$refs['editDataForm'].clearValidate()
+        })
+      },
+      handleView(row) {
+        this.disabled = true
+        this.editModel.id = row.id
+        this.editModel.username = row.username
+        this.editModel.realName = row.realName
+        this.editModel.mobile = row.mobile
+        this.editModel.tel = row.tel
+        this.editModel.email = row.email
+        this.editModel.address = row.address
+        this.editModel.systemIds = row.systemIdArr
+        this.editModel.sex = row.sex
+        this.editModel.phone = row.phone
+        this.editModel.fax = row.fax
+        this.editModel.departmentId = row.departmentId
+        this.getsystems()
+        this.getDeptList()
+        this.dialogStatus = 'update'
+        this.editDialogFormVisible = true
         this.$nextTick(() => {
           this.$refs['editDataForm'].clearValidate()
         })
       },
       handleUpdate(row) {
+        this.disabled = false
         this.editModel.id = row.id
         this.editModel.username = row.username
         this.editModel.realName = row.realName
