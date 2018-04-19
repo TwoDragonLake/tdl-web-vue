@@ -106,7 +106,8 @@ export default {
     delete: '删除',
     cancel: '取 消',
     confirm: '确 定',
-    view: '查 看'
+    view: '查 看',
+    operation: '操作'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
@@ -159,5 +160,11 @@ export default {
     RoleSn: '角色标示',
     RoleReamrk: '备注',
     password: '密码'
+  },
+  roleManager: {
+    name: '名称',
+    sn: '标示',
+    note: '备注'
   }
+
 }

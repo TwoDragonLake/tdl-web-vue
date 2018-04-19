@@ -106,7 +106,8 @@ export default {
     delete: 'Delete',
     cancel: 'Cancel',
     confirm: 'Confirm',
-    view: 'view'
+    view: 'view',
+    operation: 'operation'
   },
   errorLog: {
     tips: 'Please click the bug icon in the upper right corner',
@@ -159,5 +160,11 @@ export default {
     RoleSn: 'RoleSn',
     RoleReamrk: 'Remark',
     password: 'password'
+  },
+  roleManager: {
+    name: 'Name',
+    sn: 'Sn',
+    note: 'Note'
   }
+
 }
