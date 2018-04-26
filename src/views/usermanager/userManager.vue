@@ -216,7 +216,7 @@
               </el-table-column>
               <el-table-column align="center" label='权限值' width="450">
                 <template slot-scope="scope">
-                  <el-checkbox-group v-model="scope.row.selectedPvs"  @change="groupAclChange" >
+                  <el-checkbox-group v-model="scope.row.selectedPvs"  >
                     <el-checkbox label="全选"   :checked="scope.row.hasAllPvs"  @change="setAclByModule(scope.row.id, $event)"></el-checkbox>
                     <el-checkbox  v-for="item in scope.row.pvs"  :checked="item.flag" :key="item.id"
                                   :label="item.id"    @change="setAcl(scope.row.id, scope.row.sn, item.position,$event)">
