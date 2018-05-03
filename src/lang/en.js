@@ -165,6 +165,11 @@ export default {
     name: 'Name',
     sn: 'Sn',
     note: 'Note'
+  },
+  dictManager: {
+    name: 'Name',
+    code: 'Code',
+    orderNo: 'orderNo'
   }
 
 }

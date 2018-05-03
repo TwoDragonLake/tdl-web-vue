@@ -165,6 +165,11 @@ export default {
     name: '名称',
     sn: '标示',
     note: '备注'
+  },
+  dictManager: {
+    name: '名称',
+    code: '编码',
+    orderNo: '排序号'
   }
 
 }
