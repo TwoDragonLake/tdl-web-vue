@@ -9,7 +9,8 @@
         <el-button type="primary" v-if="del" @click="handleDelete" icon="el-icon-delete"></el-button>
       </div>
       <hr>
-      <el-table :data="listData" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row @selection-change="handleSelectionChange">
+      <!--<el-table :data="listData" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row @selection-change="handleSelectionChange">-->
+        <tree-table :data="listData" :evalFunc="func" :evalArgs="args" :expandAll="expandAll"  @selection-change="handleSelectionChange">
         <el-table-column
           type="selection"
           width="55">
@@ -33,10 +34,11 @@
         <el-table-column label="操作" width="150">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="edit" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
+            <el-button type="primary"  icon="el-icon-plus" size="mini" v-if="edit" @click="handleCreateChild(scope.row)"></el-button>
           </template>
         </el-table-column>
 
-      </el-table>
+      </tree-table>
     </div>
 
     <el-dialog :title="textMap[dialogStatus]"  :visible.sync="editDialogFormVisible"  width="30%">
@@ -47,14 +49,14 @@
         <el-form-item :label="$t('dictManager.code')" prop="code">
           <el-input  v-model="model.code" style="width: 200px;margin-left: 3%"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('dictManager.orderNo')" >
-          <el-input  v-model="model.orderNo" style="width: 200px;margin-left: 3%"></el-input>
+        <el-form-item :label="$t('dictManager.orderNo')"  >
+          <el-input  v-model="model.orderNo" type="number" style="width: 200px;margin-left: 3%"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="editDialogFormVisible = false">Cancle</el-button>
         <el-button type="primary"  v-if="dialogStatus=='create'"  @click="saveDict">Save</el-button>
-        <el-button type="primary" v-else   @click="updateDict">Update</el-button>
+        <el-button type="primary"  v-else   @click="updateDict">Update</el-button>
       </div>
     </el-dialog>
 
@@ -63,15 +65,20 @@
 
 <script>
 import { Tree } from '@/views/datadict/index'
-import { getsystems, getmodules} from '@/api/moduleManager'
-import { getAll, update, insert, dodelete} from '@/api/dictManager'
+import treeTable from '@/components/TreeTable'
+import treeToArray from './customEval'
+import { getsystems } from '@/api/moduleManager'
+import { getAll, update, insert, dodelete } from '@/api/dictManager'
 export default {
   name: 'DataDict',
   components: {
-    Tree
+    Tree, treeTable
   },
   data() {
     return {
+      func: treeToArray,
+      args: [null, null],
+      expandAll: false,
       add: null,
       del: null,
       edit: null,
@@ -85,7 +92,7 @@ export default {
         code: null,
         name: null
       },
-      listData: null,
+      listData: [],
       listLoading: false,
       multipleSelection: [],
       query: {
@@ -100,7 +107,8 @@ export default {
       editDialogFormVisible: false,
       rules: {
         name: [{ required: true, message: 'name is required', trigger: 'blur' }],
-        code: [{ required: true, message: 'code is required', trigger: 'blur' }]
+        code: [{ required: true, message: 'code is required', trigger: 'blur' }],
+        orderNo: [{ type: 'number', message: 'orderNo required number', trigger: 'blur' }]
       }
     }
   },
@@ -114,6 +122,7 @@ export default {
     handlePrivSystemsClick(payload) {
       this.model.systemSn = payload.node.sn
       this.$nextTick(() => {
+        this.resetModel()
         this.getDicts()
       })
       //  console.log(payload.node)
@@ -135,7 +144,7 @@ export default {
         pcode: null,
         sn: null,
         orderNo: null,
-        systemSn: null,
+        systemSn: this.model.systemSn,
         name: null
       }
     },
@@ -146,6 +155,10 @@ export default {
       this.$nextTick(() => {
         this.$refs['editDataForm'].clearValidate()
       })
+    },
+    handleCreateChild(row) {
+      this.handleCreate()
+      this.model.pcode = row.code
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
@@ -169,6 +182,7 @@ export default {
         if (valid) {
           insert(this.model).then((res) => {
             if (res && res.responseCode === 100) {
+              this.resetModel()
               this.getDicts()
               this.editDialogFormVisible = false
               this.$notify({
@@ -194,6 +208,7 @@ export default {
         if (valid) {
           update(this.model).then((res) => {
             if (res && res.responseCode === 100) {
+              this.resetModel()
               this.getDicts()
               this.editDialogFormVisible = false
               this.$notify({
@@ -237,6 +252,7 @@ export default {
         }
         dodelete(idsstr).then((res) => {
           if (res && res.responseCode === 100) {
+            this.resetModel()
             this.getDicts()
             this.$message({
               type: 'success',

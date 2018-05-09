@@ -122,3 +122,15 @@ export function insertPriVal(pvs, moduleId) {
     }
   })
 }
+
+export function checkSnExsits(sn, systemId, id) {
+  return request({
+    url: '/managment/privilege/module/checkSnExsits.do',
+    method: 'post',
+    data: {
+      sn: sn,
+      systemId: systemId,
+      id: id
+    }
+  })
+}

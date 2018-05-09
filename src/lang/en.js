@@ -170,6 +170,12 @@ export default {
     name: 'Name',
     code: 'Code',
     orderNo: 'orderNo'
+  },
+  systemPriValue: {
+    Name: 'Name',
+    Position: 'Position',
+    OrderNo: 'OrderNo',
+    Remark: 'Remark'
   }
 
 }

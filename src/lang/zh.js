@@ -170,6 +170,12 @@ export default {
     name: '名称',
     code: '编码',
     orderNo: '排序号'
+  },
+  systemPriValue: {
+    Name: '名称',
+    Position: '整数位',
+    OrderNo: '排序号',
+    Remark: '备注'
   }
 
 }

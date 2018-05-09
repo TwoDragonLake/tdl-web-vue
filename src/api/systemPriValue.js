@@ -16,53 +16,52 @@
 
 import request from '@/utils/request'
 
-export function fetchData(role, query) {
+export function ajaxlist(privilegeValue) {
   return request({
-    url: '/managment/privilege/role/ajaxlist.do',
+    url: '/managment/privilege/pval/ajaxlist.do',
     method: 'post',
     data: {
-      role: JSON.stringify(role),
-      query: JSON.stringify(query)
+      privilegeValue: JSON.stringify(privilegeValue)
     }
   })
 }
 
-export function insert(role) {
+export function insert(privilegeValue) {
   return request({
-    url: '/managment/privilege/role/insert.do',
+    url: '/managment/privilege/pval/insert.do',
     method: 'post',
     data: {
-      role: JSON.stringify(role)
+      privilegeValue: JSON.stringify(privilegeValue)
     }
   })
 }
 
-export function update(role) {
+export function update(privilegeValue) {
   return request({
-    url: '/managment/privilege/role/update.do',
+    url: '/managment/privilege/pval/update.do',
     method: 'post',
     data: {
-      role: JSON.stringify(role)
+      privilegeValue: JSON.stringify(privilegeValue)
+    }
+  })
+}
+
+export function checkExsits(privilegeValue) {
+  return request({
+    url: '/managment/privilege/pval/checkExsits.do',
+    method: 'post',
+    data: {
+      privilegeValue: JSON.stringify(privilegeValue)
     }
   })
 }
 
 export function dodelete(ids) {
   return request({
-    url: '/managment/privilege/role/delete.do',
+    url: '/managment/privilege/pval/insert.do',
     method: 'post',
     data: {
       ids: ids
-    }
-  })
-}
-// 检测角色标识的唯一性 传入id和sn即可
-export function checkSnExsits(role) {
-  return request({
-    url: '/managment/privilege/role/checkSnExsits.do',
-    method: 'post',
-    data: {
-      role: JSON.stringify(role)
     }
   })
 }

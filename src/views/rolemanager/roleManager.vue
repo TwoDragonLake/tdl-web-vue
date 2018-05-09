@@ -106,7 +106,7 @@
 <script>
 import { Tree } from '@/views/usermanager/index'
 import treeTable from '@/components/TreeTable'
-import { fetchData, insert, update, dodelete } from '@/api/roleManager'
+import { fetchData, insert, update, dodelete, checkSnExsits } from '@/api/roleManager'
 import { getsystems, getmodules } from '@/api/moduleManager'
 import { getAllPriValBySystemSn, setAllAcl, setAclByModule, setAcl } from '@/api/userMananger'
 import treeToArray from './customEval'
@@ -229,45 +229,75 @@ export default {
       this.dialogStatus = 'update'
     },
     createData() {
-      insert(this.roleModel).then((res) => {
-        if (res && res.responseCode === 100) {
-          // this.fetchData()
-          this.editDialogFormVisible = false
-          this.fetchData()
-          this.$notify({
-            title: '成功',
-            message: '保存成功',
-            type: 'success',
-            duration: 2000
-          })
-        } else {
-          this.$notify({
-            title: '失败',
-            message: res.responseMsg,
-            type: 'fail',
-            duration: 2000
+      this.$refs['roleEditDataForm'].validate((valid) => {
+        if (valid) {
+          checkSnExsits(this.roleModel).then((response) => {
+            if (response === 0) {
+              insert(this.roleModel).then((res) => {
+                if (res && res.responseCode === 100) {
+                  // this.fetchData()
+                  this.editDialogFormVisible = false
+                  this.fetchData()
+                  this.$notify({
+                    title: '成功',
+                    message: '保存成功',
+                    type: 'success',
+                    duration: 2000
+                  })
+                } else {
+                  this.$notify({
+                    title: '失败',
+                    message: res.responseMsg,
+                    type: 'fail',
+                    duration: 2000
+                  })
+                }
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: '标识重复！',
+                type: 'fail',
+                duration: 2000
+              })
+            }
           })
         }
       })
     },
     saveUpdate() {
-      update(this.roleModel).then((res) => {
-        if (res && res.responseCode === 100) {
-          // this.fetchData()
-          this.editDialogFormVisible = false
-          this.fetchData()
-          this.$notify({
-            title: '成功',
-            message: '修改成功',
-            type: 'success',
-            duration: 2000
-          })
-        } else {
-          this.$notify({
-            title: '失败',
-            message: res.responseMsg,
-            type: 'fail',
-            duration: 2000
+      this.$refs['roleEditDataForm'].validate((valid) => {
+        if (valid) {
+          checkSnExsits(this.roleModel).then((response) => {
+            if (response === 0) {
+              update(this.roleModel).then((res) => {
+                if (res && res.responseCode === 100) {
+                  // this.fetchData()
+                  this.editDialogFormVisible = false
+                  this.fetchData()
+                  this.$notify({
+                    title: '成功',
+                    message: '修改成功',
+                    type: 'success',
+                    duration: 2000
+                  })
+                } else {
+                  this.$notify({
+                    title: '失败',
+                    message: res.responseMsg,
+                    type: 'fail',
+                    duration: 2000
+                  })
+                }
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: '标识重复！',
+                type: 'fail',
+                duration: 2000
+              })
+            }
           })
         }
       })

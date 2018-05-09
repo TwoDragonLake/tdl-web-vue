@@ -72,7 +72,7 @@
         </el-form-item>
 
         <el-form-item :label="$t('systemManager.orderNo')" prop="orderNo">
-          <el-input v-model="temp.orderNo"></el-input>
+          <el-input type="number" v-model="temp.orderNo"></el-input>
         </el-form-item>
 
         <el-form-item :label="$t('systemManager.note')" prop="note">
@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import { getList, insert, update, dodelete } from '@/api/systemManager'
+import { getList, insert, update, dodelete, checkSnExsits } from '@/api/systemManager'
 // import store from '@/store'
 //  import { getToken } from '@/utils/auth'
 
@@ -210,20 +210,31 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          insert(this.temp).then((res) => {
-            if (res && res.responseCode === 100) {
-              this.fetchData()
-              this.dialogFormVisible = false
-              this.$notify({
-                title: '成功',
-                message: '创建成功',
-                type: 'success',
-                duration: 2000
+          checkSnExsits(this.temp.sn, this.temp.id).then((response) => {
+            if (response === 0) {
+              insert(this.temp).then((res) => {
+                if (res && res.responseCode === 100) {
+                  this.fetchData()
+                  this.dialogFormVisible = false
+                  this.$notify({
+                    title: '成功',
+                    message: '创建成功',
+                    type: 'success',
+                    duration: 2000
+                  })
+                } else {
+                  this.$notify({
+                    title: '失败',
+                    message: res.responseMsg,
+                    type: 'fail',
+                    duration: 2000
+                  })
+                }
               })
             } else {
               this.$notify({
                 title: '失败',
-                message: res.responseMsg,
+                message: '标识重复！',
                 type: 'fail',
                 duration: 2000
               })
@@ -244,20 +255,31 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          update(this.temp).then((res) => {
-            if (res && res.responseCode === 100) {
-              this.fetchData()
-              this.dialogFormVisible = false
-              this.$notify({
-                title: '成功',
-                message: '修改成功',
-                type: 'success',
-                duration: 2000
+          checkSnExsits(this.temp.sn, this.temp.id).then((response) => {
+            if (response === 0) {
+              update(this.temp).then((res) => {
+                if (res && res.responseCode === 100) {
+                  this.fetchData()
+                  this.dialogFormVisible = false
+                  this.$notify({
+                    title: '成功',
+                    message: '修改成功',
+                    type: 'success',
+                    duration: 2000
+                  })
+                } else {
+                  this.$notify({
+                    title: '失败',
+                    message: res.responseMsg,
+                    type: 'fail',
+                    duration: 2000
+                  })
+                }
               })
             } else {
               this.$notify({
                 title: '失败',
-                message: res.responseMsg,
+                message: '标识重复！',
                 type: 'fail',
                 duration: 2000
               })

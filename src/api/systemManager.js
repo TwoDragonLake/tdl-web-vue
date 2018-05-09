@@ -65,3 +65,19 @@ export function dodelete(ids) {
     // request.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
   }
 }
+
+export function checkSnExsits(sn, id) {
+  try {
+    return request({
+      url: '/managment/privilege/icsystem/checkSnExsits.do',
+      method: 'post',
+      data: {
+        sn: sn,
+        id: id
+      }
+    })
+  } catch (err) {
+    console.log(err)
+  } finally {
+  }
+}
