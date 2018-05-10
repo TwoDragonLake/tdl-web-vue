@@ -270,7 +270,7 @@ export default {
           }
         }
         dodelete(idsstr).then((res) => {
-          if (res && res.responseCode === 100) {
+          if (res && res.status === '100') {
             this.resetModel()
             this.fetchData()
             this.$message({

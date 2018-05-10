@@ -596,7 +596,7 @@
           if (this.privModel.modules && this.privModel.modules.length > 0) {
             let allModule = true
             for (let i = 0; i < this.privModel.modules.length; i++) {
-              let module = this.privModel.modules[i]
+              const module = this.privModel.modules[i]
               if (!module.hasAllPvs) {
                 allModule = false
               }

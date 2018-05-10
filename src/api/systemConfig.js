@@ -13,55 +13,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import request from '@/utils/request'
 
-export function ajaxlist(privilegeValue) {
+export function ajaxList(config, query) {
   return request({
-    url: '/managment/privilege/pval/ajaxlist.do',
+    url: '/managment/system/systemConfig/ajaxList.do',
     method: 'post',
     data: {
-      privilegeValue: JSON.stringify(privilegeValue)
+      config: JSON.stringify(config),
+      query: JSON.stringify(query)
     }
   })
 }
 
-export function insert(privilegeValue) {
+export function add(systemConfig) {
   return request({
-    url: '/managment/privilege/pval/insert.do',
+    url: '/managment/system/systemConfig/add.do',
     method: 'post',
     data: {
-      privilegeValue: JSON.stringify(privilegeValue)
+      systemConfig: JSON.stringify(systemConfig)
     }
   })
 }
 
-export function update(privilegeValue) {
+export function update(systemConfig) {
   return request({
-    url: '/managment/privilege/pval/update.do',
+    url: '/managment/system/systemConfig/update.do',
     method: 'post',
     data: {
-      privilegeValue: JSON.stringify(privilegeValue)
+      systemConfig: JSON.stringify(systemConfig)
     }
   })
 }
 
-export function checkExsits(privilegeValue) {
+export function dodelete(idStrs) {
   return request({
-    url: '/managment/privilege/pval/checkExsits.do',
+    url: '/managment/system/systemConfig/delete.do',
     method: 'post',
     data: {
-      privilegeValue: JSON.stringify(privilegeValue)
+      idStrs: idStrs
     }
   })
 }
 
-export function dodelete(ids) {
+export function checkSnExsits(systemConfig) {
   return request({
-    url: '/managment/privilege/pval/delete.do',
+    url: '/managment/system/systemConfig/checkSnExsits.do',
     method: 'post',
     data: {
-      ids: ids
+      systemConfig: JSON.stringify(systemConfig)
+    }
+  })
+}
+
+export function checkKeyExsits(systemConfig) {
+  return request({
+    url: '/managment/system/systemConfig/checkKeyExsits.do',
+    method: 'post',
+    data: {
+      systemConfig: JSON.stringify(systemConfig)
     }
   })
 }

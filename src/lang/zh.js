@@ -176,6 +176,15 @@ export default {
     Position: '整数位',
     OrderNo: '排序号',
     Remark: '备注'
+  },
+  systemConfig: {
+    id: 'ID',
+    configName: '配置名称',
+    configKey: '配置key',
+    configValue: '配置key值',
+    configSn: '配置标识',
+    configOrder: '排序号',
+    remark: '备注'
   }
 
 }

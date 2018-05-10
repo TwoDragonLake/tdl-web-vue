@@ -176,6 +176,15 @@ export default {
     Position: 'Position',
     OrderNo: 'OrderNo',
     Remark: 'Remark'
+  },
+  systemConfig: {
+    id: 'ID',
+    configName: 'ConfigureName',
+    configKey: 'ConfigureKey',
+    configValue: 'ConfigureValue',
+    configSn: 'ConfigureSn',
+    configOrder: 'ConfigOrder',
+    remark: 'Remark'
   }
 
 }
