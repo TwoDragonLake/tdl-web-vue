@@ -72,8 +72,8 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]"  :visible.sync="editDialogFormVisible"  width="30%">
-      <el-form :rules="rules" ref="editDataForm" :model="model" label-position="left" label-width="70px" style='width: 900px; margin-left:50px;'>
+    <el-dialog :title="textMap[dialogStatus]"  :visible.sync="editDialogFormVisible"  width="35%">
+      <el-form :rules="rules" ref="editDataForm" :model="model" label-position="left" label-width="120px" style='width: 900px; margin-left:50px;'>
         <el-form-item :rules="rules" :label="$t('systemConfig.configName')" prop="configName">
           <el-input v-model="model.configName" style="width: 200px;margin-left: 3%"></el-input>
         </el-form-item>
@@ -298,7 +298,7 @@ export default {
       this.fetchData()
     },
     deleteConfig() {
-      if (this.multipleSelection.length === 0) {
+      if ((this.multipleSelection && this.multipleSelection.length === 0) || !this.multipleSelection) {
         this.$message({
           type: 'success',
           message: '请选择一条数据!'

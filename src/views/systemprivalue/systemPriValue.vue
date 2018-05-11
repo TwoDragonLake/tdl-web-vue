@@ -249,7 +249,7 @@ export default {
       })
     },
     handleDelete() {
-      if (this.multipleSelection.length === 0) {
+      if ((this.multipleSelection && this.multipleSelection.length === 0) || !this.multipleSelection) {
         this.$message({
           type: 'success',
           message: '请选择一条数据!'

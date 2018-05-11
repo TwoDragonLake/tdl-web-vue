@@ -7,7 +7,6 @@
       <div>
         <el-button type="primary" v-if="add" @click="handleCreate" icon="el-icon-plus"></el-button>
         <el-button type="primary" v-if="del" @click="handleDelete" icon="el-icon-delete"></el-button>
-        <el-button type="primary" v-if="read" icon="el-icon-info">查看详情</el-button>
         <el-button type="primary" v-if="edit" @click="handleSetRole" icon="el-icon-setting">分配角色</el-button>
         <el-button type="primary" v-if="acl" @click="handleAccessAcl"  icon="el-icon-setting">操作授权</el-button>
         <el-button type="primary" v-if="edit" @click="handleUserPassword" icon="el-icon-view">修改密码</el-button>

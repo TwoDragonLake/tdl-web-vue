@@ -163,7 +163,7 @@ const user = {
             }
           }
           //  样例demo【后期删除，开始场景使用】
-          privileManagerChilds.push({
+          /* privileManagerChilds.push({
             path: 'customTreeTable',
             name: 'customTreeTable',
             component: () => import('@/views/treetable/customTreeTable'),
@@ -174,8 +174,8 @@ const user = {
             name: 'Tree',
             component: () => import('@/views/tree/index'),
             meta: { title: 'Tree', icon: 'tree' }
-          })
-          // console.log(privileManagerroutes)
+          })*/
+          console.log(privileManagerroutes)
           // commit('SET_MODULES', privileManagerroutes)
           router.options.routes.push(privileManagerroute)
           router.addRoutes(privileManagerroutes)

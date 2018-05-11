@@ -185,6 +185,13 @@ export default {
     configSn: 'ConfigureSn',
     configOrder: 'ConfigOrder',
     remark: 'Remark'
+  },
+  signInLog: {
+    ip: 'Ip',
+    operationUsername: 'OperationUsername',
+    operationPerson: 'OperationPerson',
+    operationContent: 'OperationContent',
+    operationTime: 'OperationTime'
   }
 
 }

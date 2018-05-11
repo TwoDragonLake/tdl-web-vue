@@ -185,6 +185,13 @@ export default {
     configSn: '配置标识',
     configOrder: '排序号',
     remark: '备注'
+  },
+  signInLog: {
+    ip: 'Ip',
+    operationUsername: '用户名',
+    operationPerson: '真实姓名',
+    operationContent: '操作行为',
+    operationTime: '操作时间'
   }
 
 }
