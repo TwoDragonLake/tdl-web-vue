@@ -27,9 +27,36 @@ npm run build --report
 
 ## Extra
 
+## Show
+### systemManager
+![systemManager](https://github.com/TwoDragonLake/tdl-web-vue/blob/tdl-web-vue-dev/static/pic/systemManager.png)
+
+### moduleManager
+![moduleManager](https://github.com/TwoDragonLake/tdl-web-vue/blob/tdl-web-vue-dev/static/pic/moduleManager.png)
+
+### departManager
+![departManager](https://github.com/TwoDragonLake/tdl-web-vue/blob/tdl-web-vue-dev/static/pic/departManager.png)
+
+### roleManager
+![roleManager](https://github.com/TwoDragonLake/tdl-web-vue/blob/tdl-web-vue-dev/static/pic/roleManager.png)
+
+### userManager
+![userManager](https://github.com/TwoDragonLake/tdl-web-vue/blob/tdl-web-vue-dev/static/pic/userManager.png)
+
+### systemPrivValue
+![systemPrivValue](https://github.com/TwoDragonLake/tdl-web-vue/blob/tdl-web-vue-dev/static/pic/systemPrivValue.png)
+
+### dataDict
+![dataDict](https://github.com/TwoDragonLake/tdl-web-vue/blob/tdl-web-vue-dev/static/pic/dataDict.png)
+
+### systemConfig
+![systemConfig](https://github.com/TwoDragonLake/tdl-web-vue/blob/tdl-web-vue-dev/static/pic/systemConfig.png)
+
+### signInLog
+![signInLog](https://github.com/TwoDragonLake/tdl-web-vue/blob/tdl-web-vue-dev/static/pic/signInLog.png)
+
 ## Related Project
-
-
+https://github.com/TwoDragonLake/tdl-privilege
 
 
 ### License
