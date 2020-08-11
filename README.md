@@ -29,7 +29,7 @@ npm run build --report
 
 ## Show
 ### systemManager
-![systemManager](https://github.com/TwoDragonLake/tdl-web-vue/blob/tdl-web-vue-dev/static/pic/systemManager.png)
+![systemManager](static/pic/systemManager.png)
 
 ### moduleManager
 ![moduleManager](https://github.com/TwoDragonLake/tdl-web-vue/blob/tdl-web-vue-dev/static/pic/moduleManager.png)
